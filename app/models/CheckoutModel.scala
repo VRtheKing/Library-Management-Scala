@@ -1,5 +1,6 @@
 package models
 
+import play.api.libs.json.{Json, OFormat}
 import slick.jdbc.PostgresProfile.api._
 import slick.model.ForeignKeyAction.Cascade
 
@@ -22,4 +23,8 @@ class CheckoutModel(tag: Tag) extends Table[Checkout](tag, "checkouts"){
   def bookId_fk = foreignKey("bookId_fk", bookId, Book)(_.id, onDelete = Cascade)
 
   def * = (id.?, userId, bookId, dueDate, returnDate, fine, returned) <> (Checkout.tupled, Checkout.unapply)
+}
+
+object Checkout {
+  implicit val checkoutFormat: OFormat[Checkout] = Json.format[Checkout]
 }

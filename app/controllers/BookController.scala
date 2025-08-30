@@ -1,5 +1,7 @@
 package controllers
 
+import jobs.OverdueCheckerJob
+
 import javax.inject._
 import play.api.mvc._
 import play.api.libs.json._
@@ -9,7 +11,7 @@ import services.BookService
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class BookController @Inject()(cc: ControllerComponents, bookService: BookService)(implicit ec: ExecutionContext) extends AbstractController(cc) {
+class BookController @Inject()(cc: ControllerComponents, bookService: BookService, job: OverdueCheckerJob)(implicit ec: ExecutionContext) extends AbstractController(cc) {
 
   // POST /books
   def createBook: Action[JsValue] = Action.async(parse.json) { request =>

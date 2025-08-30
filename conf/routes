@@ -6,11 +6,17 @@
 # An example controller showing a sample home page
 # GET     /                           controllers.HomeController.index()
 
-# Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+# User routes
+POST    /users                     controllers.UserController.createUser
+GET     /users                     controllers.UserController.listUsers
 
-POST   /users       controllers.UserController.createUser
-GET    /users       controllers.UserController.listUsers
+# Book routes
+POST    /books                     controllers.BookController.createBook
+GET     /books                     controllers.BookController.listBooks
 
-POST   /books       controllers.BookController.createBook
-GET    /books       controllers.BookController.listBooks
+# Checkout routes
+POST    /checkouts                 controllers.CheckoutController.createCheckout
+POST    /checkouts/:checkoutId/return      controllers.CheckoutController.returnBook(checkoutId: Long)
+
+# NOtification Log route
+GET     /notifications        controllers.NotificationController.getNotifications

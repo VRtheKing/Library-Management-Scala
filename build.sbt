@@ -1,24 +1,34 @@
-name := """library-manager"""
+name := "library-manager"
 organization := "com.library"
-
 version := "1.0-SNAPSHOT"
-
-lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.13.16"
 
-libraryDependencies += guice
-libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.2" % Test
-libraryDependencies += "com.typesafe.slick" %% "slick" % "3.6.1"
+lazy val root = (project in file(".")).enablePlugins(PlayScala)
+
+val pekkoVersion = "1.1.5"
+
 libraryDependencies ++= Seq(
+  guice,
+  "org.apache.pekko" %% "pekko-actor-typed" % pekkoVersion,
+  "org.apache.pekko" %% "pekko-slf4j" % pekkoVersion,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.2" % Test,
+  "com.typesafe.slick" %% "slick" % "3.6.1",
   "com.typesafe.play" %% "play-slick" % "5.4.0",
-  "com.typesafe.play" %% "play-slick-evolutions" % "5.4.0"
+  "com.typesafe.play" %% "play-slick-evolutions" % "5.4.0",
+  "org.postgresql" % "postgresql" % "42.7.7",
+  "com.typesafe.play" %% "filters-helpers" % "2.8.22"
 )
-libraryDependencies += "org.postgresql" % "postgresql" % "42.7.7"
-libraryDependencies += "com.typesafe.play" %% "filters-helpers" % "2.8.22"
 
-// Adds additional packages into Twirl
-//TwirlKeys.templateImports += "com.library.controllers._"
+dependencyOverrides ++= Seq(
+  "org.apache.pekko" %% "pekko-actor" % pekkoVersion,
+  "org.apache.pekko" %% "pekko-actor-typed" % pekkoVersion,
+  "org.apache.pekko" %% "pekko-slf4j" % pekkoVersion,
+  "org.apache.pekko" %% "pekko-stream" % pekkoVersion,
+  "org.apache.pekko" %% "pekko-serialization-jackson" % pekkoVersion,
+  "org.apache.pekko" %% "pekko-protobuf-v3" % pekkoVersion
+)
 
-// Adds additional packages into conf/routes
+// Optional: Clean up Twirl and Routes if needed later
+// TwirlKeys.templateImports += "com.library.controllers._"
 // play.sbt.routes.RoutesKeys.routesImport += "com.library.binders._"
