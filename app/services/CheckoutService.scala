@@ -46,4 +46,16 @@ class CheckoutService @Inject()(checkoutRepo: CheckoutRepo, bookRepo: BookRepo)(
       case None => Future.successful(Left("Checkout not found"))
     }
   }
+
+  def calculateFine(checkoutId: Long): Future[Int] = {
+    checkoutRepo.findById(checkoutId).flatMap {
+      case Some(checkout) =>
+        val today = checkout.returnDate.getOrElse(LocalDate.now())
+        val fine = if (today.isAfter(checkout.dueDate)) {
+          val daysLate = ChronoUnit.DAYS.between(checkout.dueDate, today)
+            Some(BigDecimal(daysLate * 1))
+          } else None
+      checkoutRepo.calculateFine(checkoutId, fine)
+    }
+  }
 }

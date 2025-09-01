@@ -31,6 +31,13 @@ class CheckoutRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvi
     db.run(query)
   }
 
+  def calculateFine(checkoutId: Long, fine: Option[BigDecimal]): Future[Int] = {
+    val query = checkouts.filter(_.id === checkoutId)
+      .map(c => (c.fine, c.returned))
+      .update(fine, false)
+    db.run(query)
+  }
+
   def findById(id: Long): Future[Option[Checkout]] = {
     db.run(checkouts.filter(_.id === id).result.headOption)
   }
