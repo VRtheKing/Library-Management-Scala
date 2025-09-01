@@ -12,4 +12,10 @@ class UserService @Inject() (userRepo: UserRepo)(implicit ec:ExecutionContext) {
   def listUser(): Future[Seq[User]] = {
     userRepo.listUsers()
   }
+  def getUsername(userId: Long): Future[Option[String]] = {
+    userRepo.findById(userId).map {
+      case Some(user) => Some(user.name)
+      case None => None
+    }
+  }
 }

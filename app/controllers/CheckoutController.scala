@@ -7,7 +7,6 @@ import models.Checkout
 import services.CheckoutService
 
 import scala.concurrent.{ExecutionContext, Future}
-import java.time.LocalDate
 
 @Singleton
 class CheckoutController @Inject()(cc: ControllerComponents, checkoutService: CheckoutService)(implicit ec: ExecutionContext)

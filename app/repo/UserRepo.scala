@@ -16,4 +16,7 @@ class UserRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
   def listUsers(): Future[Seq[User]] = {
     db.run(users.result)
   }
+  def findById(userId: Long): Future[Option[User]] = {
+    db.run(users.filter(_.id === userId).result.headOption)
+  }
 }
