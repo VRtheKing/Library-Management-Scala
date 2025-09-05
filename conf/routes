@@ -1,14 +1,9 @@
 # Routes
-# This file defines all application routes (Higher priority routes first)
-# https://www.playframework.com/documentation/latest/ScalaRouting
-# ~~~~
-
-# An example controller showing a sample home page
-# GET     /                           controllers.HomeController.index()
 
 # User routes
 POST    /users                     controllers.UserController.createUser
 GET     /users                     controllers.UserController.listUsers
+GET     /borrowedBooks/:userId     controllers.UserController.borrowed
 
 # Book routes
 POST    /books                     controllers.BookController.createBook
@@ -18,5 +13,5 @@ GET     /books                     controllers.BookController.listBooks
 POST    /checkouts                 controllers.CheckoutController.createCheckout
 POST    /checkouts/:checkoutId/return      controllers.CheckoutController.returnBook(checkoutId: Long)
 
-# NOtification Log route
+# Notification Log route
 GET     /notifications        controllers.NotificationController.getNotifications

@@ -16,12 +16,8 @@ class BookRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
     db.run(books += book)
   }
 
-  def listAllBooks(): Future[Seq[Book]] = {
+  def listAllBooks: Future[Seq[Book]] = {
     db.run(books.result)
-  }
-
-  def addStockCount(book: Book): Future[Int] = {
-    db.run(books += book)
   }
 
   def decreaseStock(bookId: Long): Future[Int] = {
@@ -35,7 +31,6 @@ class BookRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
     }
     db.run(query)
   }
-
 
   def increaseStock(bookId: Long): Future[Int] = {
     val query = books.filter(_.id === bookId).map(_.stock).result.headOption.flatMap {

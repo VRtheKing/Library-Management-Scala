@@ -10,9 +10,6 @@ class BookService @Inject()(bookRepo: BookRepo)(implicit ec: ExecutionContext) {
     bookRepo.createBook(book)
   }
   def listBook(): Future[Seq[Book]] = {
-    bookRepo.listAllBooks()
-  }
-  def decreaseBookStock(book: Book): Future[Int] = {
-    ???
+    bookRepo.listAllBooks
   }
 }

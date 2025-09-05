@@ -26,7 +26,7 @@ class CheckoutController @Inject()(cc: ControllerComponents, checkoutService: Ch
 
   def returnBook(checkoutId: Long): Action[AnyContent] = Action.async {
     checkoutService.createReturn(checkoutId).map {
-      case Right(_) => Ok(Json.obj("status" -> "Book returned successfully"))
+      case Right(fine) => Ok(Json.obj("status" -> "Book returned successfully", "fine" -> fine))
       case Left(msg) => BadRequest(Json.obj("error" -> msg))
     }
   }

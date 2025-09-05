@@ -7,7 +7,6 @@ scalaVersion := "2.13.16"
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 val pekkoVersion = "1.1.5"
-
 libraryDependencies ++= Seq(
   guice,
   "org.apache.pekko" %% "pekko-actor-typed" % pekkoVersion,
@@ -27,6 +26,15 @@ dependencyOverrides ++= Seq(
   "org.apache.pekko" %% "pekko-stream" % pekkoVersion,
   "org.apache.pekko" %% "pekko-serialization-jackson" % pekkoVersion,
   "org.apache.pekko" %% "pekko-protobuf-v3" % pekkoVersion
+)
+
+libraryDependencies ++= Seq(
+  "io.grpc" % "grpc-netty" % "1.75.0",
+  "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
+)
+
+Compile / PB.targets := Seq(
+  scalapb.gen(grpc = true) -> (Compile / sourceManaged).value / "scalapb"
 )
 
 // Optional: Clean up Twirl and Routes if needed later

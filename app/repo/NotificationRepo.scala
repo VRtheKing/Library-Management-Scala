@@ -20,7 +20,7 @@ class NotificationRepo @Inject()(protected val dbConfigProvider: DatabaseConfigP
     db.run(notifications += notification)
   }
 
-  def listNotifications(): Future[Seq[Notification]] = {
+  def listNotifications: Future[Seq[Notification]] = {
     db.run(notifications.result)
   }
 }

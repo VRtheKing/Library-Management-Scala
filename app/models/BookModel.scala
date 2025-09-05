@@ -10,7 +10,6 @@ class BookModel(tag: Tag) extends Table[Book](tag,"books"){
   def title = column[String]("title")
   def author = column[String]("author")
   def stock = column[Int]("stock")
-
   def * = (id.?, title, author, stock) <> (Book.tupled, Book.unapply)
 }
 

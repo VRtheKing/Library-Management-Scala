@@ -12,7 +12,7 @@ class NotificationService @Inject()(notificationRepo: NotificationRepo)(implicit
     notificationRepo.logNotification(message)
   }
   def getAllNotifications(): Future[Seq[Notification]] = {
-    notificationRepo.listNotifications()
+    notificationRepo.listNotifications
   }
 
 }
