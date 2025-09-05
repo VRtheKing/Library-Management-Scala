@@ -18,4 +18,7 @@ class UserService @Inject() (userRepo: UserRepo)(implicit ec:ExecutionContext) {
       case None => None
     }
   }
+  def listBorrowedBooks(userId: Long): Future[Seq[String]] = {
+    userRepo.listBorrowedBooks(userId)
+  }
 }

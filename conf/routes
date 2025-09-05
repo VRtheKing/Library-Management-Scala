@@ -3,7 +3,7 @@
 # User routes
 POST    /users                     controllers.UserController.createUser
 GET     /users                     controllers.UserController.listUsers
-GET     /borrowedBooks/:userId     controllers.UserController.borrowed
+GET     /borrowedBooks/:userId     controllers.UserController.borrowedBooks(userId: Long)
 
 # Book routes
 POST    /books                     controllers.BookController.createBook
