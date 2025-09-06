@@ -30,8 +30,9 @@ dependencyOverrides ++= Seq(
 
 libraryDependencies ++= Seq(
   "io.grpc" % "grpc-netty" % "1.75.0",
-  "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion
+  "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion,
 )
+dependencyOverrides += "com.google.guava" % "guava" % "33.4.8-jre"
 
 Compile / PB.targets := Seq(
   scalapb.gen(grpc = true) -> (Compile / sourceManaged).value / "scalapb"

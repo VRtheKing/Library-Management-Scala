@@ -56,12 +56,15 @@ class CheckoutService @Inject()(checkoutRepo: CheckoutRepo, bookRepo: BookRepo, 
     checkoutRepo.findById(checkoutId).flatMap {
       case Some(checkout) =>
         val today = checkout.returnDate.getOrElse(LocalDate.now())
-//        val today = checkout.returnDate > LocalDate.now() ? LocalDate.now() : checkout.returnDate
-        val fine = if (today.isAfter(checkout.dueDate)) {
+        val fineAmount = if (today.isAfter(checkout.dueDate)) {
           val daysLate = ChronoUnit.DAYS.between(checkout.dueDate, today)
-            Some(BigDecimal(daysLate * 1))
-          } else None
-      checkoutRepo.calculateFine(checkoutId, fine)
+          daysLate.toInt * 1
+        } else {
+          0
+        }
+        checkoutRepo.calculateFine(checkoutId, Some(fineAmount)).map(_ => fineAmount)
+      case None =>
+        Future.successful(0)
     }
   }
 }
