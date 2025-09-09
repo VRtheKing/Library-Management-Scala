@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:latest
+    container_name: db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: library
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ScalaREST
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./app/models/DBModel.sql:/docker-entrypoint-initdb.d/DBModel.sql
+    networks:
+      - library-net
+
+  app:
+    build: .
+    container_name: library-app
+    restart: on-failure
+    depends_on:
+      - db
+    ports:
+      - "9000:9000"
+      - "50051:50051"
+    networks:
+      - library-net
+
+volumes:
+  db_data:
+
+networks:
+  library-net:
+    driver: bridge
