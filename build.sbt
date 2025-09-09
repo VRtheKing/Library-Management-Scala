@@ -5,6 +5,7 @@ version := "1.0-SNAPSHOT"
 scalaVersion := "2.13.16"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
+enablePlugins(JavaAppPackaging, DockerPlugin)
 
 val pekkoVersion = "1.1.5"
 libraryDependencies ++= Seq(
@@ -31,6 +32,12 @@ dependencyOverrides ++= Seq(
 libraryDependencies ++= Seq(
   "io.grpc" % "grpc-netty" % "1.75.0",
   "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion,
+
+  specs2 % Test,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.2" % Test,
+  "org.scalatest" %% "scalatest" % "3.2.19" % Test,
+  "org.mockito" %% "mockito-scala-scalatest" % "2.0.0" % Test
+
 )
 dependencyOverrides += "com.google.guava" % "guava" % "33.4.8-jre"
 
