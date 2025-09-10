@@ -57,4 +57,13 @@ class GrpcServer @Inject() (checkoutService: CheckoutService, userService: UserS
     .start()
 
   println("Notification gRPC Server started on port 50051")
+
+  lifecycle.addStopHook { () =>
+    println("Shutting down gRPC server...")
+    Future {
+      server.shutdown()
+      server.awaitTermination()
+      println("gRPC server down.")
+    }
+  }
 }

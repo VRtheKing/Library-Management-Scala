@@ -18,8 +18,9 @@ class BookController @Inject()(cc: ControllerComponents, bookService: BookServic
     request.body.validate[Book].fold(
       errors => Future.successful(BadRequest(Json.obj("error" -> "Invalid JSON"))),
       book => {
-        bookService.createBook(book).map { _ =>
-          Created(Json.obj("status" -> "Book created"))
+        bookService.createBook(book).map {
+          case -1 => Ok(Json.obj("status" -> "Book already exists"))
+          case _ => Created(Json.obj("status" -> "Book created"))
         }
       }
     )

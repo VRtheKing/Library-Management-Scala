@@ -13,11 +13,18 @@ class BookRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
   val books = TableQuery[models.BookModel]
 
   def createBook(book: Book): Future[Int] = {
-    db.run(books += book)
+    bookExists(book.isbn) flatMap {
+      case Some(_) => Future.successful(-1)
+      case None => db.run(books += book)
+    }
   }
 
   def listAllBooks: Future[Seq[Book]] = {
     db.run(books.result)
+  }
+
+  def bookExists(isbn: String): Future[Option[Book]] = {
+    db.run(books.filter(_.isbn === isbn).result.headOption)
   }
 
   def decreaseStock(bookId: Long): Future[Int] = {

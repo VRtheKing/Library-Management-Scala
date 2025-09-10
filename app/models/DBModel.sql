@@ -1,12 +1,16 @@
 CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
+    email TEXT UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE books (
     id BIGSERIAL PRIMARY KEY,
     title TEXT NOT NULL,
     author TEXT NOT NULL,
-    stock INTEGER NOT NULL
+    isbn TEXT NOT NULL,
+    stock INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE checkouts (
     id BIGSERIAL PRIMARY KEY,
@@ -30,5 +34,5 @@ CREATE TABLE checkouts (
 CREATE TABLE notifications (
     id BIGSERIAL PRIMARY KEY,
     message TEXT NOT NULL,
-    timestamp TIMESTAMP NOT NULL
+    created_at TIMESTAMP NOT NULL
 );
