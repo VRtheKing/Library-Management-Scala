@@ -23,6 +23,10 @@ class CheckoutRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvi
     db.run(checkouts.filter(c => !c.returned && c.dueDate < currentDate).result)
   }
 
+  def findPendingCheckouts(currentDate: LocalDate): Future[Seq[Checkout]] = {
+    db.run(checkouts.filter((c => !c.returned && c.dueDate>currentDate)).result)
+  }
+
   def returnBook(checkoutId: Long, returnDate: LocalDate, fine: Option[BigDecimal]): Future[Int] = {
     val query = checkouts.filter(_.id === checkoutId)
       .map(c => (c.returnDate, c.fine, c.returned))
@@ -36,6 +40,10 @@ class CheckoutRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvi
       .map(c => (c.fine, c.returned))
       .update(fine, false)
     db.run(query)
+  }
+
+  def listCheckouts(): Future[Seq[Checkout]] = {
+    db.run(checkouts.result)
   }
 
   def findById(id: Long): Future[Option[Checkout]] = {

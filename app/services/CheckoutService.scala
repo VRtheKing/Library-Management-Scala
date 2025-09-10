@@ -30,6 +30,15 @@ class CheckoutService @Inject()(checkoutRepo: CheckoutRepo, bookRepo: BookRepo, 
     checkoutRepo.findOverdueCheckouts(LocalDate.now())
   }
 
+  def listCheckouts(status: String): Future[Seq[Checkout]] = {
+    status match {
+      case "ALL" => checkoutRepo.listCheckouts()
+      case "PENDING" => checkoutRepo.findPendingCheckouts(LocalDate.now())
+      case "OVERDUE" => checkoutRepo.findOverdueCheckouts(LocalDate.now())
+      case _ => Future.failed(new IllegalArgumentException("Invalid Query Option"))
+    }
+  }
+
   def createReturn(checkoutId: Long): Future[Either[String, BigDecimal]] = {
     checkoutRepo.findById(checkoutId).flatMap {
       case Some(checkout) =>
