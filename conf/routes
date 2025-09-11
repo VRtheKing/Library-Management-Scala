@@ -8,6 +8,7 @@ GET     /borrowedBooks     controllers.UserController.borrowedBooks(userId: Long
 # Book routes
 POST    /books                     controllers.BookController.createBook
 GET     /books                     controllers.BookController.listBooks
+PATCH   /books                     controllers.BookController.updateBook
 
 # Checkout routes
 GET     /checkouts                 controllers.CheckoutController.getCheckouts(status: String)

@@ -12,7 +12,7 @@ class UserModel(tag: Tag) extends Table[User](tag, "users"){
   def email = column[String]("email")
   def createdAt = column[LocalDateTime]("created_at")
 
-  def * = (id.?, name, email, createdAt.?) <> (User.tupled, User.unapply)
+  def * = (id.?, name, email, createdAt.?).mapTo[User]
 }
 
 object User {

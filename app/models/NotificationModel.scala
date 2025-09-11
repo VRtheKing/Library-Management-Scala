@@ -12,7 +12,7 @@ class NotificationModel(tag: Tag) extends Table[Notification](tag, "notification
   def message = column[String]("message")
   def created_at = column[LocalDateTime]("created_at")
 
-  def * = (id.?, message, created_at) <> (Notification.tupled, Notification.unapply)
+  def * = (id.?, message, created_at).mapTo[Notification]
 }
 
 object Notification {

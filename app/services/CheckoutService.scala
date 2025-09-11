@@ -17,9 +17,12 @@ class CheckoutService @Inject()(checkoutRepo: CheckoutRepo, bookRepo: BookRepo, 
         bookRepo.isOutOfStock(checkout.bookId).flatMap {
           case true => Future.successful(Left("Book is out of stock"))
           case false =>
-            checkoutRepo.createCheckout(checkout).flatMap { _ =>
-              bookRepo.decreaseStock(checkout.bookId).map { _ =>
-                Right(1)
+            if (LocalDate.now().isAfter(checkout.dueDate)) Future.successful(Left("Due Date is in the Past"))
+            else {
+              checkoutRepo.createCheckout(checkout).flatMap { _ =>
+                bookRepo.decreaseStock(checkout.bookId).map { _ =>
+                  Right(1)
+                }
               }
             }
         }

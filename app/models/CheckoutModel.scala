@@ -22,7 +22,7 @@ class CheckoutModel(tag: Tag) extends Table[Checkout](tag, "checkouts"){
   def userId_fk = foreignKey("userId_fk", userId, User)(_.id, onDelete = Cascade)
   def bookId_fk = foreignKey("bookId_fk", bookId, Book)(_.id, onDelete = Cascade)
 
-  def * = (id.?, userId, bookId, dueDate, returnDate, fine, returned) <> (Checkout.tupled, Checkout.unapply)
+  def * = (id.?, userId, bookId, dueDate, returnDate, fine, returned).mapTo[Checkout]
 }
 
 object Checkout {

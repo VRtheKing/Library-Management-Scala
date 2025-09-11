@@ -1,8 +1,10 @@
 package services
 
-import models.Book
+import models.{Book, BookPatch}
+
 import scala.concurrent.{ExecutionContext, Future}
 import repo.BookRepo
+
 import javax.inject.Inject
 
 class BookService @Inject()(bookRepo: BookRepo)(implicit ec: ExecutionContext) {
@@ -11,5 +13,8 @@ class BookService @Inject()(bookRepo: BookRepo)(implicit ec: ExecutionContext) {
   }
   def listBook(): Future[Seq[Book]] = {
     bookRepo.listAllBooks
+  }
+  def updateBook(book: BookPatch): Future[Either[String, Book]] = {
+    bookRepo.updateBook(book)
   }
 }
