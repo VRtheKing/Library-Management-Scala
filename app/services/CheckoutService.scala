@@ -1,6 +1,6 @@
 package services
 
-import models.{Book, Checkout}
+import models.{Book, Checkout, CheckoutPatch}
 import repo.{BookRepo, CheckoutRepo, UserRepo}
 
 import java.time.LocalDate
@@ -31,6 +31,10 @@ class CheckoutService @Inject()(checkoutRepo: CheckoutRepo, bookRepo: BookRepo, 
 
   def findOverdueCheckouts(): Future[Seq[Checkout]] = {
     checkoutRepo.findOverdueCheckouts(LocalDate.now())
+  }
+
+  def updateCheckout(updateCheckout: CheckoutPatch): Future[Either[String, Checkout]] = {
+    checkoutRepo.updateCheckout(updateCheckout)
   }
 
   def listCheckouts(status: String): Future[Seq[Checkout]] = {

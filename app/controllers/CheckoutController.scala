@@ -1,9 +1,11 @@
 package controllers
 
+import models.Checkout.checkoutPatchFormat
+
 import javax.inject._
 import play.api.mvc._
 import play.api.libs.json._
-import models.Checkout
+import models.{Checkout, CheckoutPatch}
 import services.CheckoutService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -28,6 +30,19 @@ class CheckoutController @Inject()(cc: ControllerComponents, checkoutService: Ch
     checkoutService.listCheckouts(status).map{ checkouts =>
       Ok(Json.toJson(checkouts))
     }
+  }
+
+  // PATCH /checkout
+  def updateCheckout(): Action[JsValue] = Action.async(parse.json) { request =>
+    request.body.validate[CheckoutPatch].fold(
+      errors => Future.successful(BadRequest(JsError.toJson(errors))),
+      checkout => {
+        checkoutService.updateCheckout(checkout).map {
+          case Left(msg) => Ok(Json.obj("status" -> msg))
+          case Right(checkout) => Created(Json.obj("status" -> "Checkout Updated", "checkout" -> checkout))
+        }
+      }
+    )
   }
 
   def returnBook(checkoutId: Long): Action[AnyContent] = Action.async {

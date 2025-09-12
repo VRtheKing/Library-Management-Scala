@@ -1,6 +1,6 @@
 package repo
 
-import models.{Book, Checkout}
+import models.{Book, Checkout, CheckoutPatch}
 
 import scala.concurrent.{ExecutionContext, Future}
 import slick.jdbc.PostgresProfile.api._
@@ -22,6 +22,33 @@ class CheckoutRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvi
   def findOverdueCheckouts(currentDate: LocalDate): Future[Seq[Checkout]] = {
     db.run(checkouts.filter(c => !c.returned && c.dueDate < currentDate).result)
   }
+
+  def updateCheckout(updateCheckout: CheckoutPatch): Future[Either[String, Checkout]] = {
+    val finder = checkouts.filter(_.id === updateCheckout.id)
+    db.run(finder.result.headOption).flatMap {
+      case None =>
+        Future.successful(Left("Checkout Not Found"))
+      case Some(existingCheckout) =>
+        val updatedCheckout = existingCheckout.copy(
+          userId = updateCheckout.userId.getOrElse(existingCheckout.userId),
+          bookId = updateCheckout.bookId.getOrElse(existingCheckout.bookId),
+          dueDate = updateCheckout.dueDate.getOrElse(existingCheckout.dueDate),
+          returnDate = updateCheckout.returnDate.orElse(existingCheckout.returnDate),
+          fine = updateCheckout.fine.orElse(existingCheckout.fine),
+          returned = updateCheckout.returned.getOrElse(existingCheckout.returned)
+        )
+        if (updatedCheckout == existingCheckout) {
+          Future.successful(Left("No changes are made"))
+        } else {
+          db.run(finder.update(updatedCheckout)).flatMap { _ =>
+            db.run(finder.result.headOption).map {
+              case Some(updated) => Right(updated)
+            }
+          }
+        }
+    }
+  }
+
 
   def findPendingCheckouts(currentDate: LocalDate): Future[Seq[Checkout]] = {
     db.run(checkouts.filter((c => !c.returned && c.dueDate>currentDate)).result)

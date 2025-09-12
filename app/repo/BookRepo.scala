@@ -56,8 +56,6 @@ class BookRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
     val query = books.filter(_.id === bookId).map(_.stock).result.headOption.flatMap {
       case Some(stock) if stock > 0 =>
         books.filter(_.id === bookId).map(_.stock).update(stock - 1)
-      case Some(_) =>
-        DBIO.successful(0)
       case None =>
         DBIO.successful(0)
     }

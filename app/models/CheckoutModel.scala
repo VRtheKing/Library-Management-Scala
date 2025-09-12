@@ -7,6 +7,7 @@ import slick.model.ForeignKeyAction.Cascade
 import java.time.LocalDate
 
 case class Checkout(id: Option[Long], userId: Long, bookId: Long, dueDate: LocalDate, returnDate: Option[LocalDate], fine: Option[BigDecimal], returned: Boolean)
+case class CheckoutPatch(id: Long, userId: Option[Long], bookId: Option[Long], dueDate: Option[LocalDate], returnDate: Option[LocalDate], fine: Option[BigDecimal], returned: Option[Boolean])
 
 class CheckoutModel(tag: Tag) extends Table[Checkout](tag, "checkouts"){
   def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
@@ -27,4 +28,5 @@ class CheckoutModel(tag: Tag) extends Table[Checkout](tag, "checkouts"){
 
 object Checkout {
   implicit val checkoutFormat: OFormat[Checkout] = Json.format[Checkout]
+  implicit val checkoutPatchFormat: OFormat[CheckoutPatch] = Json.format[CheckoutPatch]
 }

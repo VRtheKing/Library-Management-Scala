@@ -3,6 +3,7 @@
 # User routes
 POST    /users                     controllers.UserController.createUser
 GET     /users                     controllers.UserController.listUsers
+PATCH   /users                     controllers.UserController.updateUser
 GET     /borrowedBooks     controllers.UserController.borrowedBooks(userId: Long)
 
 # Book routes
@@ -12,6 +13,7 @@ PATCH   /books                     controllers.BookController.updateBook
 
 # Checkout routes
 GET     /checkouts                 controllers.CheckoutController.getCheckouts(status: String)
+PATCH   /checkout                  controllers.CheckoutController.updateCheckout
 POST    /checkouts                 controllers.CheckoutController.createCheckout
 POST    /checkouts/:checkoutId/return      controllers.CheckoutController.returnBook(checkoutId: Long)
 

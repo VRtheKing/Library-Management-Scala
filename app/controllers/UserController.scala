@@ -3,8 +3,10 @@ package controllers
 import javax.inject._
 import play.api.mvc._
 import play.api.libs.json._
-import models.User
+import models.{User, UserPatch}
 import services.UserService
+
+import models.User.updateUserFormat
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -18,6 +20,19 @@ class UserController @Inject()(cc: ControllerComponents, userService: UserServic
       user => {
         userService.createUser(user).map { _ =>
           Created(Json.obj("status" -> "User created"))
+        }
+      }
+    )
+  }
+
+  // PATCH /users
+  def updateUser: Action[JsValue] = Action.async(parse.json) { request =>
+    request.body.validate[UserPatch].fold(
+      errors => Future.successful(BadRequest(Json.obj("status" -> "Invalid JSON"))),
+        updatedUser => {
+        userService.updateUser(updatedUser).map{
+          case Left(msg) => Ok(Json.obj("status" -> msg))
+          case Right(user) => Created(Json.obj("Status" -> "User Updated", "Updated User" -> user))
         }
       }
     )
