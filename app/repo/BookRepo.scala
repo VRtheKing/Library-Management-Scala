@@ -1,11 +1,13 @@
 package repo
 
 import models.{Book, BookPatch}
+
 import scala.concurrent.{ExecutionContext, Future}
 import slick.jdbc.PostgresProfile.api._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
 
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 class BookRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)(implicit val ec: ExecutionContext)
@@ -26,25 +28,26 @@ class BookRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
 
   def updateBook(book: BookPatch): Future[Either[String, Book]] = {
     val finder = books.filter(_.id === book.id)
-    db.run(finder.result.headOption).flatMap{
+    db.run(finder.result.headOption).flatMap {
       case None => Future.successful(Left("Book Not Found"))
-      case Some(existingBook) => {
+      case Some(existingBook) =>
         val updatedBook = existingBook.copy(
           title = book.title.getOrElse(existingBook.title),
           author = book.author.getOrElse(existingBook.author),
           isbn = book.isbn.getOrElse(existingBook.isbn),
-          stock = book.stock.getOrElse(existingBook.stock)
+          stock = book.stock.getOrElse(existingBook.stock),
+          updated_at = Some(LocalDateTime.now())
         )
-        db.run(finder.update(updatedBook)).flatMap { _ =>
-          db.run(finder.result.headOption).map{
-            case Some(book) => {
-              if (existingBook==updatedBook) Left("No changes are made")
-              else Right(book)
+        if (existingBook == updatedBook.copy(updated_at = existingBook.updated_at)) {
+          Future.successful(Left("No changes are made"))
+        } else {
+          db.run(finder.update(updatedBook)).flatMap { _ =>
+            db.run(finder.result.headOption).map {
+              case Some(book) => Right(book)
+              case None => Left("Book Not Found")
             }
-            case None => Left("Book Not Found")
           }
         }
-      }
     }
   }
 

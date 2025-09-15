@@ -3,7 +3,9 @@ package models
 import play.api.libs.json.{Json, OFormat}
 import slick.jdbc.PostgresProfile.api._
 
-case class Book(id: Option[Long], title: String, author: String, isbn:String, stock: Int)
+import java.time.LocalDateTime
+
+case class Book(id: Option[Long], title: String, author: String, isbn:String, stock: Int, updated_at: Option[LocalDateTime])
 case class BookPatch(id: Long, title: Option[String], author: Option[String], isbn: Option[String], stock: Option[Int])
 
 class BookModel(tag: Tag) extends Table[Book](tag,"books"){
@@ -12,7 +14,8 @@ class BookModel(tag: Tag) extends Table[Book](tag,"books"){
   def author = column[String]("author")
   def isbn = column[String]("isbn")
   def stock = column[Int]("stock")
-  def * = (id.?, title, author, isbn, stock).mapTo[Book]
+  def updated_at = column[LocalDateTime]("updated_at")
+  def * = (id.?, title, author, isbn, stock, updated_at.?).mapTo[Book]
 }
 
 object Book {
