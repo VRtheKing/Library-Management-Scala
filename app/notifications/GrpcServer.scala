@@ -7,38 +7,55 @@ import play.api.inject.ApplicationLifecycle
 
 import scala.concurrent.{ExecutionContext, Future}
 import io.grpc.{Server, ServerBuilder}
-import service.notification.notifications.{Notification, NotificationServiceGrpc, SubscribeRequest}
 import services.{CheckoutService, UserService}
 
+import service.notification.notifications._
 import scala.util.{Failure, Success}
 
 class NotificationServiceImpl(checkoutService: CheckoutService, userService: UserService)(implicit ec: ExecutionContext)
   extends NotificationServiceGrpc.NotificationService {
-
   override def subscribeNotifications(request: SubscribeRequest, responseObserver: StreamObserver[Notification]): Unit = {
     checkoutService.findOverdueCheckouts().onComplete {
       case Success(overdueList) =>
-        val notificationFutures = overdueList.map { checkout =>
-          val userId = checkout.userId
+        val groupedByUser = overdueList.groupBy(_.userId)
+
+        val userNotificationsFutures = groupedByUser.map { case (userId, checkouts) =>
           val usernameFut = userService.getUsername(userId)
-          val fineFut = checkout.id match {
-            case Some(id) => checkoutService.calculateFine(id)
-            case None     => Future.successful(0)
-          }
+
+          val finesFut = Future.sequence(checkouts.map { checkout =>
+            checkout.id match {
+              case Some(id) => checkoutService.calculateFine(id)
+              case None     => Future.successful(0)
+            }
+          })
+
           for {
             usernameOpt <- usernameFut
-            fine <- fineFut
+            fines <- finesFut
           } yield {
             val username = usernameOpt.getOrElse("Unknown User")
-            print(fine, fineFut)
-            val msg =
-              s"User $username (Id: $userId) has an overdue book (Book ID: ${checkout.bookId}). Due: ${checkout.dueDate}. Fine: ₹$fine"
-            responseObserver.onNext(Notification(message = msg))
+
+            val overdueBooks = checkouts.zip(fines).map { case (checkout, fine) =>
+              service.notification.notifications.OverdueBook(
+                bookId = checkout.bookId,
+                dueDate = checkout.dueDate.toString,
+                fine = fine
+              )
+            }.toSeq
+
+            val notification = Notification(
+              username = username,
+              userId = userId,
+              overdueBooks = overdueBooks
+            )
+            responseObserver.onNext(notification)
           }
         }
-        Future.sequence(notificationFutures).onComplete { _ =>
+
+        Future.sequence(userNotificationsFutures).onComplete { _ =>
           responseObserver.onCompleted()
         }
+
       case Failure(ex) =>
         responseObserver.onError(ex)
     }

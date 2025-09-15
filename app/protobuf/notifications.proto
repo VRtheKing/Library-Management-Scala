@@ -2,13 +2,19 @@ syntax = "proto3";
 
 package service.notification;
 
-message Notification {
-    string message = 1;
+message OverdueBook {
+    int64 bookId = 1;
+    string dueDate = 2;
+    int32 fine = 3;
 }
 
-message SubscribeRequest {
-    int64 user_id = 1;
+message Notification {
+    string username = 1;
+    int64 userId = 2;
+    repeated OverdueBook overdueBooks = 3;
 }
+
+message SubscribeRequest {}
 
 service NotificationService {
     rpc SubscribeNotifications(SubscribeRequest) returns (stream Notification);
