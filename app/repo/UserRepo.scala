@@ -1,6 +1,6 @@
 package repo
 
-import models.{Checkout, User, UserPatch}
+import models.{BorrowedBook, Checkout, User, UserPatch}
 
 import scala.concurrent.{ExecutionContext, Future}
 import slick.jdbc.PostgresProfile.api._
@@ -41,13 +41,14 @@ class UserRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
       }
     }
   }
-  def listBorrowedBooks(userId: Long): Future[Seq[String]] = {
+  def listBorrowedBooks(userId: Long): Future[Seq[BorrowedBook]] = {
     val books = TableQuery[models.BookModel]
     val query = for {
       c <- checkout if c.userId === userId && !c.returned
       b <- books if b.id === c.bookId
-    } yield b.title
-
-    db.run(query.result)
+    } yield (c.id, b.title)
+    db.run(query.result).map(_.map {
+      case (checkoutId, title) => BorrowedBook(checkoutId, title)
+    })
   }
 }

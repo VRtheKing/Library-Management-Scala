@@ -12,7 +12,7 @@ class OverdueCheckerJob @Inject()(actorSystem: ActorSystem, checkoutService: Che
 
   println("[JOB] OD Constructor Init")
 
-  actorSystem.scheduler.scheduleAtFixedRate(initialDelay = 10.seconds, interval = 10.seconds) { () =>
+  actorSystem.scheduler.scheduleAtFixedRate(initialDelay = 10.seconds, interval = 5.minutes) { () =>
     println("[JOB] Checking for overdue checkouts...")
 
     checkoutService.findOverdueCheckouts().foreach { overdueCheckouts =>

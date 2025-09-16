@@ -50,6 +50,4 @@ class UserController @Inject()(cc: ControllerComponents, userService: UserServic
       Ok(Json.toJson(books))
     }
   }
-
-
 }
