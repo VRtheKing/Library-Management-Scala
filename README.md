@@ -173,6 +173,7 @@ PATCH /checkout
 | author     | String           |                              |
 | isbn       | String           |                              |
 | stock      | Int              |                              |
+| fine       | Int              |                              |
 | updated_at | LocalDateTime    |                              |
 
 ---
