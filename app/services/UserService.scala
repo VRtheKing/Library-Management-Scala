@@ -1,9 +1,10 @@
 package services
 
-import models.{User, UserPatch}
+import models.{BorrowedBook, User, UserPatch}
 
 import scala.concurrent.{ExecutionContext, Future}
 import repo.UserRepo
+
 import javax.inject.Inject
 
 class UserService @Inject() (userRepo: UserRepo)(implicit ec:ExecutionContext) {
@@ -19,7 +20,7 @@ class UserService @Inject() (userRepo: UserRepo)(implicit ec:ExecutionContext) {
       case None => None
     }
   }
-  def listBorrowedBooks(userId: Long): Future[Seq[String]] = {
+  def listBorrowedBooks(userId: Long): Future[Seq[BorrowedBook]] = {
     userRepo.listBorrowedBooks(userId)
   }
 
