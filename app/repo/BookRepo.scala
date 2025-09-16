@@ -56,7 +56,10 @@ class BookRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
   }
 
   def getBookFine(bookId: Long): Future[Int] = {
-    db.run(books.filter(_.id == bookId).map(_.fine).result.headOption).map(_.getOrElse(1))
+    db.run(books.filter(_.id === bookId).map(_.fine).result.headOption).flatMap {
+      case Some(fine) => Future.successful(fine)
+      case None       => Future.failed(new NoSuchElementException(s"Book with ID $bookId not found"))
+    }
   }
 
   def decreaseStock(bookId: Long): Future[Int] = {
