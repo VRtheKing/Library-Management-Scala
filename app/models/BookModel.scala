@@ -5,7 +5,7 @@ import slick.jdbc.PostgresProfile.api._
 
 import java.time.LocalDateTime
 
-case class Book(id: Option[Long], title: String, author: String, isbn:String, stock: Int, updated_at: Option[LocalDateTime])
+case class Book(id: Option[Long], title: String, author: String, isbn:String, stock: Int, updated_at: Option[LocalDateTime], fine: Int)
 case class BookPatch(id: Long, title: Option[String], author: Option[String], isbn: Option[String], stock: Option[Int])
 
 class BookModel(tag: Tag) extends Table[Book](tag,"books"){
@@ -15,7 +15,8 @@ class BookModel(tag: Tag) extends Table[Book](tag,"books"){
   def isbn = column[String]("isbn")
   def stock = column[Int]("stock")
   def updated_at = column[LocalDateTime]("updated_at")
-  def * = (id.?, title, author, isbn, stock, updated_at.?).mapTo[Book]
+  def fine = column[Int]("fine")
+  def * = (id.?, title, author, isbn, stock, updated_at.?, fine).mapTo[Book]
 }
 
 object Book {

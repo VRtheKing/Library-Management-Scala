@@ -8,8 +8,9 @@ import play.api.inject.ApplicationLifecycle
 import scala.concurrent.{ExecutionContext, Future}
 import io.grpc.{Server, ServerBuilder}
 import services.{CheckoutService, UserService}
-
+import com.typesafe.config.ConfigFactory
 import service.notification.notifications._
+
 import scala.util.{Failure, Success}
 
 class NotificationServiceImpl(checkoutService: CheckoutService, userService: UserService)(implicit ec: ExecutionContext)
@@ -66,9 +67,10 @@ class NotificationServiceImpl(checkoutService: CheckoutService, userService: Use
 class GrpcServer @Inject() (checkoutService: CheckoutService, userService: UserService, lifecycle: ApplicationLifecycle)(implicit ec: ExecutionContext) {
 
   private val notificationService = new NotificationServiceImpl(checkoutService, userService)
-
+  private val config = ConfigFactory.load()
+  private val gRPC_PORT: Int = config.getInt("gRPC.port")
   private val server: Server = ServerBuilder
-    .forPort(50051)
+    .forPort(gRPC_PORT)
     .addService(NotificationServiceGrpc.bindService(notificationService, ec))
     .build()
     .start()

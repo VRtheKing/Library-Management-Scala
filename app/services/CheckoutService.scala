@@ -53,17 +53,18 @@ class CheckoutService @Inject()(checkoutRepo: CheckoutRepo, bookRepo: BookRepo, 
           Future.successful(Left("Book already returned"))
         } else {
           val today = checkout.returnDate.getOrElse(LocalDate.now())
+          bookRepo.getBookFine(checkout.bookId).flatMap{ fine_amt =>
           val fine = if (today.isAfter(checkout.dueDate)) {
             val daysLate = ChronoUnit.DAYS.between(checkout.dueDate, today)
-            BigDecimal(daysLate * 1)
+            BigDecimal(daysLate * fine_amt)
           } else BigDecimal(0)
-
           checkoutRepo.returnBook(checkoutId, today, Some(fine)).flatMap { _ =>
             bookRepo.increaseStock(checkout.bookId).map { _ =>
               Right(fine)
             }
           }
         }
+      }
       case None => Future.successful(Left("Checkout not found"))
     }
   }
@@ -72,13 +73,15 @@ class CheckoutService @Inject()(checkoutRepo: CheckoutRepo, bookRepo: BookRepo, 
     checkoutRepo.findById(checkoutId).flatMap {
       case Some(checkout) =>
         val today = checkout.returnDate.getOrElse(LocalDate.now())
-        val fineAmount = if (today.isAfter(checkout.dueDate)) {
-          val daysLate = ChronoUnit.DAYS.between(checkout.dueDate, today)
-          daysLate.toInt * 1
-        } else {
-          0
-        }
+        bookRepo.getBookFine(checkout.bookId).flatMap{ fine_amt =>
+          val fineAmount = if (today.isAfter(checkout.dueDate)) {
+            val daysLate = ChronoUnit.DAYS.between(checkout.dueDate, today)
+            daysLate.toInt * fine_amt
+          } else {
+            0
+          }
         checkoutRepo.calculateFine(checkoutId, Some(fineAmount)).map(_ => fineAmount)
+        }
       case None =>
         Future.successful(0)
     }

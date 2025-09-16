@@ -55,6 +55,10 @@ class BookRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)
     db.run(books.filter(_.isbn === isbn).result.headOption)
   }
 
+  def getBookFine(bookId: Long): Future[Int] = {
+    db.run(books.filter(_.id == bookId).map(_.fine).result.headOption).map(_.getOrElse(1))
+  }
+
   def decreaseStock(bookId: Long): Future[Int] = {
     val query = books.filter(_.id === bookId).map(_.stock).result.headOption.flatMap {
       case Some(stock) if stock > 0 =>

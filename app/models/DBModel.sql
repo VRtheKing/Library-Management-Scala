@@ -1,38 +1,42 @@
+# --- !Ups
+
 CREATE TABLE users (
-    id BIGSERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    email TEXT UNIQUE,
+    email TEXT NOT NULL UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 CREATE TABLE books (
-    id BIGSERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
     author TEXT NOT NULL,
     isbn TEXT NOT NULL,
     stock INTEGER NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    fine INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP
 );
+
 CREATE TABLE checkouts (
-    id BIGSERIAL PRIMARY KEY,
-    user_id BIGINT NOT NULL,
-    book_id BIGINT NOT NULL,
+    id SERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    book_id BIGINT NOT NULL REFERENCES books(id) ON DELETE CASCADE,
     due_date DATE NOT NULL,
     return_date DATE,
     fine NUMERIC,
-    returned BOOLEAN NOT NULL,
-
-    CONSTRAINT fk_user
-        FOREIGN KEY(user_id)
-        REFERENCES users(id)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_book
-        FOREIGN KEY(book_id)
-        REFERENCES books(id)
-        ON DELETE CASCADE
+    returned BOOLEAN NOT NULL DEFAULT FALSE
 );
+
 CREATE TABLE notifications (
-    id BIGSERIAL PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     message TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+# --- !Downs
+
+DROP TABLE IF EXISTS notifications;
+DROP TABLE IF EXISTS checkouts;
+DROP TABLE IF EXISTS books;
+DROP TABLE IF EXISTS users;
