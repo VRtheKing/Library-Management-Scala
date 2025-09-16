@@ -12,15 +12,15 @@ class CheckoutService @Inject()(checkoutRepo: CheckoutRepo, bookRepo: BookRepo, 
 
   def createCheckout(checkout: Checkout): Future[Either[String, Int]] = {
     userRepo.findById(checkout.userId).flatMap {
-      case None => Future.successful(Left("User not found"))
+      case None => Future.successful(Left("User not found")) // If the given userId does not exist in the DB
       case Some(_) =>
         bookRepo.isOutOfStock(checkout.bookId).flatMap {
-          case true => Future.successful(Left("Book is out of stock"))
+          case true => Future.successful(Left("Book is out of stock")) // If the Books is Out of stock
           case false =>
-            if (LocalDate.now().isAfter(checkout.dueDate)) Future.successful(Left("Due Date is in the Past"))
+            if (LocalDate.now().isAfter(checkout.dueDate)) Future.successful(Left("Due Date is in the Past")) // If the checkout is craeted with a dueDate in the past.
             else {
               checkoutRepo.createCheckout(checkout).flatMap { _ =>
-                bookRepo.decreaseStock(checkout.bookId).map { _ =>
+                bookRepo.decreaseStock(checkout.bookId).map { _ => // Decrease the stock if the checkout is successful
                   Right(1)
                 }
               }
@@ -39,48 +39,50 @@ class CheckoutService @Inject()(checkoutRepo: CheckoutRepo, bookRepo: BookRepo, 
 
   def listCheckouts(status: String): Future[Seq[Checkout]] = {
     status match {
-      case "ALL" => checkoutRepo.listCheckouts()
-      case "PENDING" => checkoutRepo.findPendingCheckouts(LocalDate.now())
-      case "OVERDUE" => checkoutRepo.findOverdueCheckouts(LocalDate.now())
+      case "ALL" => checkoutRepo.listCheckouts() // Gets all the checkouts
+      case "PENDING" => checkoutRepo.findPendingCheckouts(LocalDate.now()) // Gets the checkouts that are pending
+      case "OVERDUE" => checkoutRepo.findOverdueCheckouts(LocalDate.now()) // Gets the checkouts that are overdue
       case _ => Future.failed(new IllegalArgumentException("Invalid Query Option"))
     }
   }
 
+  // Create a Return
   def createReturn(checkoutId: Long): Future[Either[String, BigDecimal]] = {
     checkoutRepo.findById(checkoutId).flatMap {
       case Some(checkout) =>
         if (checkout.returned) {
-          Future.successful(Left("Book already returned"))
+          Future.successful(Left("Book already returned")) // If a duplicate return request is made
         } else {
           val today = checkout.returnDate.getOrElse(LocalDate.now())
           bookRepo.getBookFine(checkout.bookId).flatMap{ fine_amt =>
           val fine = if (today.isAfter(checkout.dueDate)) {
             val daysLate = ChronoUnit.DAYS.between(checkout.dueDate, today)
-            BigDecimal(daysLate * fine_amt)
-          } else BigDecimal(0)
+            BigDecimal(daysLate * fine_amt) // Logic for calculating the fine
+          } else BigDecimal(0) // 0 fine if there is no delay in return from teh dueDate
           checkoutRepo.returnBook(checkoutId, today, Some(fine)).flatMap { _ =>
-            bookRepo.increaseStock(checkout.bookId).map { _ =>
+            bookRepo.increaseStock(checkout.bookId).map { _ => // Increase the stock is the return is successful
               Right(fine)
             }
           }
         }
       }
-      case None => Future.successful(Left("Checkout not found"))
+      case None => Future.successful(Left("Checkout not found")) // Returns Left if no checkout is found on the id
     }
   }
 
+  // Calculate fine based on the no_of_days and the fine_per_day of the book
   def calculateFine(checkoutId: Long): Future[Int] = {
     checkoutRepo.findById(checkoutId).flatMap {
       case Some(checkout) =>
         val today = checkout.returnDate.getOrElse(LocalDate.now())
-        bookRepo.getBookFine(checkout.bookId).flatMap{ fine_amt =>
+        bookRepo.getBookFine(checkout.bookId).flatMap{ fine_amt => // Gets the fine amount of that book for a day from DB
           val fineAmount = if (today.isAfter(checkout.dueDate)) {
             val daysLate = ChronoUnit.DAYS.between(checkout.dueDate, today)
-            daysLate.toInt * fine_amt
+            daysLate.toInt * fine_amt // Logic for calculating the fine
           } else {
-            0
+            0 // 0 fine if there is no delay in return from teh dueDate
           }
-        checkoutRepo.calculateFine(checkoutId, Some(fineAmount)).map(_ => fineAmount)
+        checkoutRepo.calculateFine(checkoutId, Some(fineAmount)).map(_ => fineAmount) // Updates the Fine to the DB
         }
       case None =>
         Future.successful(0)

@@ -14,6 +14,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class CheckoutController @Inject()(cc: ControllerComponents, checkoutService: CheckoutService)(implicit ec: ExecutionContext)
   extends AbstractController(cc) {
 
+  //POST /checkouts
   def createCheckout: Action[JsValue] = Action.async(parse.json) { request =>
     request.body.validate[Checkout].fold(
       errors => Future.successful(BadRequest(JsError.toJson(errors))),
@@ -26,6 +27,7 @@ class CheckoutController @Inject()(cc: ControllerComponents, checkoutService: Ch
     )
   }
 
+  //GET /checkouts
   def getCheckouts(status: String): Action[AnyContent] = Action.async {
     checkoutService.listCheckouts(status).map{ checkouts =>
       Ok(Json.toJson(checkouts))
@@ -45,6 +47,7 @@ class CheckoutController @Inject()(cc: ControllerComponents, checkoutService: Ch
     )
   }
 
+  // POST    /checkouts/:checkoutId/return
   def returnBook(checkoutId: Long): Action[AnyContent] = Action.async {
     checkoutService.createReturn(checkoutId).map {
       case Right(fine) => Ok(Json.obj("status" -> "Book returned successfully", "fine" -> fine))

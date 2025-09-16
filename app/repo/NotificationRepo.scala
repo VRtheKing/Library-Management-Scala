@@ -16,11 +16,11 @@ class NotificationRepo @Inject()(protected val dbConfigProvider: DatabaseConfigP
   val notifications = TableQuery[models.NotificationModel]
 
   def logNotification(message: String): Future[Int] = {
-    val notification = Notification(None, message, LocalDateTime.now())
-    db.run(notifications += notification)
+    val notification = Notification(None, message, LocalDateTime.now()) // Creates notification
+    db.run(notifications += notification) // logs into DB
   }
 
   def listNotifications: Future[Seq[Notification]] = {
-    db.run(notifications.result)
+    db.run(notifications.result) // get all notification
   }
 }

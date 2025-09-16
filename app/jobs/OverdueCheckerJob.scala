@@ -12,21 +12,21 @@ class OverdueCheckerJob @Inject()(actorSystem: ActorSystem, checkoutService: Che
 
   println("[JOB] OD Constructor Init")
 
-  actorSystem.scheduler.scheduleAtFixedRate(initialDelay = 10.seconds, interval = 5.minutes) { () =>
+  actorSystem.scheduler.scheduleAtFixedRate(initialDelay = 10.seconds, interval = 5.minutes) { () => // Code runs every 5 minutes
     println("[JOB] Checking for overdue checkouts...")
 
     checkoutService.findOverdueCheckouts().foreach { overdueCheckouts =>
-      overdueCheckouts.foreach { checkout =>
+      overdueCheckouts.foreach { checkout => // finds all the overdue checkouts
         userService.getUsername(checkout.userId).foreach {
           case Some(username) =>
             val msg = s"User $username (Id: ${checkout.userId}) has an overdue book (Book ID: ${checkout.bookId}). Due: ${checkout.dueDate}"
-            notificationService.notify(msg)
+            notificationService.notify(msg) // Sends out the notification
           case None =>
             val msg = s"UserId: ${checkout.userId} (username not found) has an overdue book (Book ID: ${checkout.bookId}). Due: ${checkout.dueDate}"
-            notificationService.notify(msg)
+            notificationService.notify(msg) // Sends out the notification
         }
         checkout.id.foreach( id =>
-          checkoutService.calculateFine(id)
+          checkoutService.calculateFine(id) // Updates the fine to the DB
         )
       }
     }

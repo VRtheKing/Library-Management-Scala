@@ -21,11 +21,11 @@ class NotificationServiceImpl(checkoutService: CheckoutService, userService: Use
         val groupedByUser = overdueList.groupBy(_.userId)
 
         val userNotificationsFutures = groupedByUser.map { case (userId, checkouts) =>
-          val usernameFut = userService.getUsername(userId)
+          val usernameFut = userService.getUsername(userId) // Get the username of the user
 
           val finesFut = Future.sequence(checkouts.map { checkout =>
             checkout.id match {
-              case Some(id) => checkoutService.calculateFine(id)
+              case Some(id) => checkoutService.calculateFine(id) // calculate the fine for the user
               case None     => Future.successful(0)
             }
           })
@@ -41,14 +41,14 @@ class NotificationServiceImpl(checkoutService: CheckoutService, userService: Use
                 bookId = checkout.bookId,
                 dueDate = checkout.dueDate.toString,
                 fine = fine
-              )
+              ) // Get all the overdue books of the user
             }.toSeq
 
             val notification = Notification(
               username = username,
               userId = userId,
               overdueBooks = overdueBooks
-            )
+            ) // Create the RPC stream of the notification
             responseObserver.onNext(notification)
           }
         }
@@ -70,14 +70,14 @@ class GrpcServer @Inject() (checkoutService: CheckoutService, userService: UserS
   private val config = ConfigFactory.load()
   private val gRPC_PORT: Int = config.getInt("gRPC.port")
   private val server: Server = ServerBuilder
-    .forPort(gRPC_PORT)
+    .forPort(gRPC_PORT) // Port from application.conf
     .addService(NotificationServiceGrpc.bindService(notificationService, ec))
     .build()
     .start()
 
-  println("Notification gRPC Server started on port 50051")
+  println(s"Notification gRPC Server started on port $gRPC_PORT")
 
-  lifecycle.addStopHook { () =>
+  lifecycle.addStopHook { () => // Hook to ensure proper shutting down of server
     println("Shutting down gRPC server...")
     Future {
       server.shutdown()

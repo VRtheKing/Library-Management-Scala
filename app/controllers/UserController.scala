@@ -45,6 +45,7 @@ class UserController @Inject()(cc: ControllerComponents, userService: UserServic
     }
   }
 
+  // GET /borrowedBooks
   def borrowedBooks(userId: Long): Action[AnyContent] = Action.async{
     userService.listBorrowedBooks(userId).map { books=>
       Ok(Json.toJson(books))

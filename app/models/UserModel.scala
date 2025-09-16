@@ -17,7 +17,7 @@ class UserModel(tag: Tag) extends Table[User](tag, "users"){
   def * = (id.?, name, email, createdAt.?).mapTo[User]
   def insertProjection() = (name, email) <> (
     (User(None, _, _, None)).tupled,
-    (u: User) => Some((u.name, u.email))
+    (u: User) => Some((u.name, u.email)) // Partial Projection for insertion without id and createdAt
   )
 }
 

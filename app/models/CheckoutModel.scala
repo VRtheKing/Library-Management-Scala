@@ -28,5 +28,5 @@ class CheckoutModel(tag: Tag) extends Table[Checkout](tag, "checkouts"){
 
 object Checkout {
   implicit val checkoutFormat: OFormat[Checkout] = Json.format[Checkout]
-  implicit val checkoutPatchFormat: OFormat[CheckoutPatch] = Json.format[CheckoutPatch]
+  implicit val checkoutPatchFormat: OFormat[CheckoutPatch] = Json.format[CheckoutPatch] // CheckoutPatch serialization
 }

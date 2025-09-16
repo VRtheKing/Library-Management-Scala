@@ -10,6 +10,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class NotificationController @Inject()(cc: ControllerComponents, notificationService: NotificationService)(implicit ec: ExecutionContext)
   extends AbstractController(cc) {
 
+  // GET /notifications
   def getNotifications: Action[AnyContent] = Action.async {
     notificationService.getAllNotifications().map { notifications =>
       Ok(Json.toJson(notifications))
