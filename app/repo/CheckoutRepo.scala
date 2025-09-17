@@ -6,6 +6,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import slick.jdbc.PostgresProfile.api._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
+import services.CheckoutService
 
 import javax.inject.Inject
 import java.time.LocalDate

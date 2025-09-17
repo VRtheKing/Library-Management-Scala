@@ -33,8 +33,26 @@ class CheckoutService @Inject()(checkoutRepo: CheckoutRepo, bookRepo: BookRepo, 
     checkoutRepo.findOverdueCheckouts(LocalDate.now())
   }
 
-  def updateCheckout(updateCheckout: CheckoutPatch): Future[Either[String, Checkout]] = {
-    checkoutRepo.updateCheckout(updateCheckout)
+  def updateCheckout(update: CheckoutPatch): Future[Either[String, Checkout]] = {
+    checkoutRepo.findById(update.id).flatMap {
+      case None => Future.successful(Left("Checkout not found"))
+      case Some(existingCheckout) =>
+        val updatedBookId = update.bookId.getOrElse(existingCheckout.bookId)
+
+        val resetOldStockF = if (updatedBookId != existingCheckout.bookId) {
+          bookRepo.increaseStock(existingCheckout.bookId) // rollback old book's stock
+        } else Future.successful(())
+
+        val decreaseNewStockF = if (updatedBookId != existingCheckout.bookId) {
+          bookRepo.decreaseStock(updatedBookId) // decrease new book's stock
+        } else Future.successful(())
+
+        for {
+          _ <- resetOldStockF
+          _ <- decreaseNewStockF
+          result <- checkoutRepo.updateCheckout(update) // update the checkout
+        } yield result
+    }
   }
 
   def listCheckouts(status: String): Future[Seq[Checkout]] = {
