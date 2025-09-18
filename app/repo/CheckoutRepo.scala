@@ -1,12 +1,11 @@
 package repo
 
-import models.{Book, Checkout, CheckoutPatch}
+import models.{Checkout, CheckoutPatch}
 
 import scala.concurrent.{ExecutionContext, Future}
 import slick.jdbc.PostgresProfile.api._
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
 import slick.jdbc.JdbcProfile
-import services.CheckoutService
 
 import javax.inject.Inject
 import java.time.LocalDate
@@ -17,8 +16,8 @@ class CheckoutRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvi
   val checkouts = TableQuery[models.CheckoutModel]
   val books = TableQuery[models.BookModel]
 
-  def createCheckout(checkout: Checkout): Future[Int] = {
-    db.run(checkouts += checkout) // creates a checkout record
+  def createCheckout[T](query: DBIO[T]): Future[T] = {
+    db.run(query.transactionally) // creates a checkout record
   }
   def findOverdueCheckouts(currentDate: LocalDate): Future[Seq[Checkout]] = {
     db.run(checkouts.filter(c => !c.returned && c.dueDate < currentDate).result) // fetches all the overdue checkouts
@@ -52,7 +51,7 @@ class CheckoutRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvi
 
 
   def findPendingCheckouts(currentDate: LocalDate): Future[Seq[Checkout]] = {
-    db.run(checkouts.filter((c => !c.returned && c.dueDate>currentDate)).result) // find the pending checkouts
+    db.run(checkouts.filter(c => !c.returned && c.dueDate>currentDate).result) // find the pending checkouts
   }
 
   def returnBook(checkoutId: Long, returnDate: LocalDate, fine: Option[BigDecimal]): Future[Int] = {
