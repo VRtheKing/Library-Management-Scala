@@ -1,7 +1,10 @@
 package services
 
-import models.{Book, Checkout, CheckoutPatch}
+import models.{Checkout, CheckoutPatch}
 import repo.{BookRepo, CheckoutRepo, UserRepo}
+
+import slick.dbio.DBIO
+import slick.jdbc.PostgresProfile.api._
 
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -11,23 +14,31 @@ import scala.concurrent.{ExecutionContext, Future}
 class CheckoutService @Inject()(checkoutRepo: CheckoutRepo, bookRepo: BookRepo, userRepo: UserRepo)(implicit ec: ExecutionContext) {
 
   def createCheckout(checkout: Checkout): Future[Either[String, Int]] = {
-    userRepo.findById(checkout.userId).flatMap {
-      case None => Future.successful(Left("User not found")) // If the given userId does not exist in the DB
-      case Some(_) =>
-        bookRepo.isOutOfStock(checkout.bookId).flatMap {
-          case true => Future.successful(Left("Book is out of stock")) // If the Books is Out of stock
-          case false =>
-            if (LocalDate.now().isAfter(checkout.dueDate)) Future.successful(Left("Due Date is in the Past")) // If the checkout is craeted with a dueDate in the past.
-            else {
-              checkoutRepo.createCheckout(checkout).flatMap { _ =>
-                bookRepo.decreaseStock(checkout.bookId).map { _ => // Decrease the stock if the checkout is successful
-                  Right(1)
-                }
-              }
+    val queryTransaction: DBIO[Either[String, Int]] = for {
+      user <- userRepo.users.filter(_.id === checkout.userId).result.headOption
+      result <- user match {
+        case None => DBIO.successful(Left("User not found"))
+
+        case Some(_) =>
+          for {
+            stockAvl <- bookRepo.books.filter(_.id === checkout.bookId).map(_.stock).forUpdate.result.headOption
+            outcome <- stockAvl match {
+              case None => DBIO.successful(Left("Book not found"))
+              case Some(stock) if stock <= 0 => DBIO.successful(Left("Book out of stock"))
+              case Some(_) if LocalDate.now().isAfter(checkout.dueDate) =>
+                DBIO.successful(Left("Due date is in the Past"))
+              case Some(stock) =>
+                for {
+                  _ <- checkoutRepo.checkouts += checkout
+                  _ <- bookRepo.books.filter(_.id === checkout.bookId).map(_.stock).update(stock - 1)
+                } yield Right(1)
             }
-        }
-    }
+          } yield outcome
+      }
+    } yield result
+    checkoutRepo.createCheckout(queryTransaction)
   }
+
 
   def findOverdueCheckouts(): Future[Seq[Checkout]] = {
     checkoutRepo.findOverdueCheckouts(LocalDate.now())
