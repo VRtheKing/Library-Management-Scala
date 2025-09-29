@@ -11,7 +11,8 @@ class UserControllerSpec extends PlaySpec with GuiceOneAppPerTest {
   "UserController" should {
 
     "create a new user" in {
-      val jsonBody = Json.obj("name" -> "Alice", "email" -> "alice3@example.com")
+      val jsonBody =
+        Json.obj("name" -> "Alice", "email" -> "alice3@example.com")
 
       val request = FakeRequest(POST, "/users")
         .withHeaders("Content-Type" -> "application/json")
@@ -33,7 +34,8 @@ class UserControllerSpec extends PlaySpec with GuiceOneAppPerTest {
     }
 
     "update a user" in {
-      val jsonBody = Json.obj("id" -> 2, "name" -> "Alice", "email" -> "alice2@example.com")
+      val jsonBody =
+        Json.obj("id" -> 2, "name" -> "Alice", "email" -> "alice2@example.com")
 
       val request = FakeRequest(PATCH, "/users")
         .withHeaders("Content-Type" -> "application/json")

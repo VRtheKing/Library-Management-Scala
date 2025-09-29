@@ -10,13 +10,16 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class NotificationRepo @Inject()(protected val dbConfigProvider: DatabaseConfigProvider)(implicit ec: ExecutionContext)
-  extends HasDatabaseConfigProvider[JdbcProfile] {
+class NotificationRepo @Inject() (
+    protected val dbConfigProvider: DatabaseConfigProvider
+)(implicit ec: ExecutionContext)
+    extends HasDatabaseConfigProvider[JdbcProfile] {
 
   val notifications = TableQuery[models.NotificationModel]
 
   def logNotification(message: String): Future[Int] = {
-    val notification = Notification(None, message, LocalDateTime.now()) // Creates notification
+    val notification =
+      Notification(None, message, LocalDateTime.now()) // Creates notification
     db.run(notifications += notification) // logs into DB
   }
 

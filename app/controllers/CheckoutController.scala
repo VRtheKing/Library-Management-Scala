@@ -11,46 +11,57 @@ import services.CheckoutService
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class CheckoutController @Inject()(cc: ControllerComponents, checkoutService: CheckoutService)(implicit ec: ExecutionContext)
-  extends AbstractController(cc) {
+class CheckoutController @Inject() (
+    cc: ControllerComponents,
+    checkoutService: CheckoutService
+)(implicit ec: ExecutionContext)
+    extends AbstractController(cc) {
 
-  //POST /checkouts
+  // POST /checkouts
   def createCheckout: Action[JsValue] = Action.async(parse.json) { request =>
-    request.body.validate[Checkout].fold(
-      errors => Future.successful(BadRequest(JsError.toJson(errors))),
-      checkout => {
-        checkoutService.createCheckout(checkout).map {
-          case Right(_) => Created(Json.obj("status" -> "Checkout created"))
-          case Left(msg) => BadRequest(Json.obj("error" -> msg))
+    request.body
+      .validate[Checkout]
+      .fold(
+        errors => Future.successful(BadRequest(JsError.toJson(errors))),
+        checkout => {
+          checkoutService.createCheckout(checkout).map {
+            case Right(_)  => Created(Json.obj("status" -> "Checkout created"))
+            case Left(msg) => BadRequest(Json.obj("error" -> msg))
+          }
         }
-      }
-    )
+      )
   }
 
-  //GET /checkouts
+  // GET /checkouts
   def getCheckouts(status: String): Action[AnyContent] = Action.async {
-    checkoutService.listCheckouts(status).map{ checkouts =>
+    checkoutService.listCheckouts(status).map { checkouts =>
       Ok(Json.toJson(checkouts))
     }
   }
 
   // PATCH /checkout
   def updateCheckout(): Action[JsValue] = Action.async(parse.json) { request =>
-    request.body.validate[CheckoutPatch].fold(
-      errors => Future.successful(BadRequest(JsError.toJson(errors))),
-      checkout => {
-        checkoutService.updateCheckout(checkout).map {
-          case Left(msg) => Ok(Json.obj("status" -> msg))
-          case Right(checkout) => Created(Json.obj("status" -> "Checkout Updated", "checkout" -> checkout))
+    request.body
+      .validate[CheckoutPatch]
+      .fold(
+        errors => Future.successful(BadRequest(JsError.toJson(errors))),
+        checkout => {
+          checkoutService.updateCheckout(checkout).map {
+            case Left(msg)       => Ok(Json.obj("status" -> msg))
+            case Right(checkout) =>
+              Created(
+                Json.obj("status" -> "Checkout Updated", "checkout" -> checkout)
+              )
+          }
         }
-      }
-    )
+      )
   }
 
   // POST    /checkouts/:checkoutId/return
   def returnBook(checkoutId: Long): Action[AnyContent] = Action.async {
     checkoutService.createReturn(checkoutId).map {
-      case Right(fine) => Ok(Json.obj("status" -> "Book returned successfully", "fine" -> fine))
+      case Right(fine) =>
+        Ok(Json.obj("status" -> "Book returned successfully", "fine" -> fine))
       case Left(msg) => BadRequest(Json.obj("error" -> msg))
     }
   }

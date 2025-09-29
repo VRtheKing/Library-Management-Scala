@@ -11,7 +11,12 @@ class BookControllerSpec extends PlaySpec with GuiceOneAppPerTest {
   "BookController" should {
 
     "add a new book" in {
-      val jsonBody = Json.obj("title" -> "Clean Code", "author" -> "Robert C. Martin","isbn"->"825-5-254-62352-1", "stock" -> 1)
+      val jsonBody = Json.obj(
+        "title" -> "Clean Code",
+        "author" -> "Robert C. Martin",
+        "isbn" -> "825-5-254-62352-1",
+        "stock" -> 1
+      )
 
       val request = FakeRequest(POST, "/books")
         .withHeaders("Content-Type" -> "application/json")
