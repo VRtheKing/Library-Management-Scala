@@ -11,11 +11,11 @@ import models.User.updateUserFormat
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class UserController @Inject() (
-    cc: ControllerComponents,
-    userService: UserService
-)(implicit ec: ExecutionContext)
-    extends AbstractController(cc) {
+class UserController @Inject()(
+                                cc: ControllerComponents,
+                                userService: UserService
+                              )(implicit ec: ExecutionContext)
+  extends AbstractController(cc) {
 
   // POST /users
   def createUser: Action[JsValue] = Action.async(parse.json) { request =>
@@ -41,7 +41,7 @@ class UserController @Inject() (
           Future.successful(BadRequest(Json.obj("status" -> "Invalid JSON"))),
         updatedUser => {
           userService.updateUser(updatedUser).map {
-            case Left(msg)   => Ok(Json.obj("status" -> msg))
+            case Left(msg) => Ok(Json.obj("status" -> msg))
             case Right(user) =>
               Created(
                 Json.obj("Status" -> "User Updated", "Updated User" -> user)
@@ -62,6 +62,14 @@ class UserController @Inject() (
   def borrowedBooks(userId: Long): Action[AnyContent] = Action.async {
     userService.listBorrowedBooks(userId).map { books =>
       Ok(Json.toJson(books))
+    }
+  }
+
+  // DELETE /users/:userId
+  def deleteUser(userId: Long): Action[AnyContent] = Action.async {
+    userService.deleteUser(userId).map{
+      case 0 => Ok(Json.toJson("Status" -> "User Not Found"))
+      case _ => Ok(Json.toJson("Status" -> "User Deleted"))
     }
   }
 }

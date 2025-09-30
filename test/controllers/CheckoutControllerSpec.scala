@@ -29,19 +29,19 @@ class CheckoutControllerSpec extends PlaySpec with GuiceOneAppPerTest {
       status(result) mustBe BAD_REQUEST
     }
 
-//    "return a book" in {
-//      val request = FakeRequest(POST, "/checkouts/6/return")
-//      val result = route(app, request).get
-//
-//      status(result) mustBe OK
-//    }
+    //    "return a book" in {
+    //      val request = FakeRequest(POST, "/checkouts/6/return")
+    //      val result = route(app, request).get
+    //
+    //      status(result) mustBe OK
+    //    }
 
-//    "return a late book" in {
-//      val request = FakeRequest(POST, "/checkouts/3/return")
-//      val result = route(app, request).get
-//
-//      status(result) mustBe OK
-//    }
+    //    "return a late book" in {
+    //      val request = FakeRequest(POST, "/checkouts/3/return")
+    //      val result = route(app, request).get
+    //
+    //      status(result) mustBe OK
+    //    }
 
     "duplicate return should fail" in {
       val request = FakeRequest(POST, "/checkouts/2/return")

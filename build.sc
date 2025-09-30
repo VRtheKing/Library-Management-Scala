@@ -1,5 +1,5 @@
 import mill._
-import $ivy.`com.lihaoyi::mill-contrib-playlib:`,  mill.playlib._
+import $ivy.`com.lihaoyi::mill-contrib-playlib:`, mill.playlib._
 
 object librarymanager extends RootModule with PlayModule {
 

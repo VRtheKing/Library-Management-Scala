@@ -10,10 +10,10 @@ import slick.jdbc.JdbcProfile
 import javax.inject.Inject
 import java.time.LocalDate
 
-class CheckoutRepo @Inject() (
-    protected val dbConfigProvider: DatabaseConfigProvider
-)(implicit val ec: ExecutionContext)
-    extends HasDatabaseConfigProvider[JdbcProfile] {
+class CheckoutRepo @Inject()(
+                              protected val dbConfigProvider: DatabaseConfigProvider
+                            )(implicit val ec: ExecutionContext)
+  extends HasDatabaseConfigProvider[JdbcProfile] {
 
   val checkouts = TableQuery[models.CheckoutModel]
   val books = TableQuery[models.BookModel]
@@ -21,6 +21,7 @@ class CheckoutRepo @Inject() (
   def createCheckout[T](query: DBIO[T]): Future[T] = {
     db.run(query.transactionally) // creates a checkout record
   }
+
   def findOverdueCheckouts(currentDate: LocalDate): Future[Seq[Checkout]] = {
     db.run(
       checkouts.filter(c => !c.returned && c.dueDate < currentDate).result
@@ -28,8 +29,8 @@ class CheckoutRepo @Inject() (
   }
 
   def updateCheckout(
-      updateCheckout: CheckoutPatch
-  ): Future[Either[String, Checkout]] = {
+                      updateCheckout: CheckoutPatch
+                    ): Future[Either[String, Checkout]] = {
     val finder = checkouts.filter(_.id === updateCheckout.id)
     db.run(finder.result.headOption).flatMap {
       case None =>
@@ -68,10 +69,10 @@ class CheckoutRepo @Inject() (
   }
 
   def returnBook(
-      checkoutId: Long,
-      returnDate: LocalDate,
-      fine: Option[BigDecimal]
-  ): Future[Int] = {
+                  checkoutId: Long,
+                  returnDate: LocalDate,
+                  fine: Option[BigDecimal]
+                ): Future[Int] = {
     val query = checkouts
       .filter(_.id === checkoutId)
       .map(c => (c.returnDate, c.fine, c.returned))
@@ -96,5 +97,9 @@ class CheckoutRepo @Inject() (
     db.run(
       checkouts.filter(_.id === id).result.headOption
     ) // Find the checkout by ID
+  }
+
+  def deleteCheckout(id: Long): Future[Int] = {
+    db.run(checkouts.filter(_.id===id).delete) // deletes the checkout
   }
 }

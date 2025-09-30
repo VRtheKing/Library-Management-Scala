@@ -5,17 +5,20 @@ POST    /users                     controllers.UserController.createUser
 GET     /users                     controllers.UserController.listUsers
 PATCH   /users                     controllers.UserController.updateUser
 GET     /borrowedBooks     controllers.UserController.borrowedBooks(userId: Long)
+DELETE /users/:userId           controllers.UserController.deleteUser(userId: Long)
 
 # Book routes
 POST    /books                     controllers.BookController.createBook
 GET     /books                     controllers.BookController.listBooks
 PATCH   /books                     controllers.BookController.updateBook
+DELETE /books/:bookId                   controllers.BookController.deleteBook(bookId: Long)
 
 # Checkout routes
 GET     /checkouts                 controllers.CheckoutController.getCheckouts(status: String)
 PATCH   /checkout                  controllers.CheckoutController.updateCheckout
 POST    /checkouts                 controllers.CheckoutController.createCheckout
 POST    /checkouts/:checkoutId/return      controllers.CheckoutController.returnBook(checkoutId: Long)
+DELETE /checkouts/:checkoutId       controllers.CheckoutController.deleteCheckout(checkoutId: Long)
 
 # Notification Log route
 GET     /notifications        controllers.NotificationController.getNotifications

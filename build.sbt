@@ -6,8 +6,6 @@ scalaVersion := "2.13.16"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 enablePlugins(JavaAppPackaging, DockerPlugin)
-enablePlugins(ScalafmtPlugin)
-Test / parallelExecution := false
 val pekkoVersion = "1.1.5"
 libraryDependencies ++= Seq(
   guice,

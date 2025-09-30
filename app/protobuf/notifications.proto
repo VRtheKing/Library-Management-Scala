@@ -17,5 +17,5 @@ message Notification {
 message SubscribeRequest {}
 
 service NotificationService {
-    rpc SubscribeNotifications(SubscribeRequest) returns (stream Notification);
+    rpc SubscribeNotifications (SubscribeRequest) returns (stream Notification);
 }

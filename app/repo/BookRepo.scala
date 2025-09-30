@@ -10,10 +10,10 @@ import slick.jdbc.JdbcProfile
 import java.time.LocalDateTime
 import javax.inject.Inject
 
-class BookRepo @Inject() (
-    protected val dbConfigProvider: DatabaseConfigProvider
-)(implicit val ec: ExecutionContext)
-    extends HasDatabaseConfigProvider[JdbcProfile] {
+class BookRepo @Inject()(
+                          protected val dbConfigProvider: DatabaseConfigProvider
+                        )(implicit val ec: ExecutionContext)
+  extends HasDatabaseConfigProvider[JdbcProfile] {
 
   val books = TableQuery[models.BookModel]
 
@@ -21,7 +21,7 @@ class BookRepo @Inject() (
   def createBook(book: Book): Future[Int] = {
     bookExists(book.isbn) flatMap {
       case Some(_) => Future.successful(-1) // Book already exists
-      case None    => db.run(books += book) // Creates a new book
+      case None => db.run(books += book) // Creates a new book
     }
   }
 
@@ -56,7 +56,7 @@ class BookRepo @Inject() (
           db.run(finder.update(updatedBook)).flatMap { _ =>
             db.run(finder.result.headOption).map {
               case Some(book) => Right(book) // Returns the updated Book
-              case None       =>
+              case None =>
                 Left(
                   "Book Not Found"
                 ) // If No book is found after update, very low possibility
@@ -120,7 +120,12 @@ class BookRepo @Inject() (
   def isOutOfStock(bookId: Long): Future[Boolean] = {
     db.run(books.filter(_.id === bookId).map(_.stock).result.headOption).map {
       case Some(stock) => stock <= 0 // Book is in stock
-      case None        => true // Books is out of stock
+      case None => true // Books is out of stock
     }
+  }
+
+  // Delete a book
+  def deleteBook(bookId: Long): Future[Int] = {
+    db.run(books.filter(_.id === bookId).delete)
   }
 }

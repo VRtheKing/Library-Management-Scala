@@ -11,11 +11,11 @@ import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CheckoutService @Inject() (
-    checkoutRepo: CheckoutRepo,
-    bookRepo: BookRepo,
-    userRepo: UserRepo
-)(implicit ec: ExecutionContext) {
+class CheckoutService @Inject()(
+                                 checkoutRepo: CheckoutRepo,
+                                 bookRepo: BookRepo,
+                                 userRepo: UserRepo
+                               )(implicit ec: ExecutionContext) {
 
   def createCheckout(checkout: Checkout): Future[Either[String, Int]] = {
     val queryTransaction: DBIO[Either[String, Int]] = for {
@@ -57,8 +57,8 @@ class CheckoutService @Inject() (
   }
 
   def updateCheckout(
-      update: CheckoutPatch
-  ): Future[Either[String, Checkout]] = {
+                      update: CheckoutPatch
+                    ): Future[Either[String, Checkout]] = {
     checkoutRepo.findById(update.id).flatMap {
       case None => Future.successful(Left("Checkout not found"))
       case Some(existingCheckout) =>
@@ -84,7 +84,7 @@ class CheckoutService @Inject() (
 
   def listCheckouts(status: String): Future[Seq[Checkout]] = {
     status match {
-      case "ALL"     => checkoutRepo.listCheckouts() // Gets all the checkouts
+      case "ALL" => checkoutRepo.listCheckouts() // Gets all the checkouts
       case "PENDING" =>
         checkoutRepo.findPendingCheckouts(
           LocalDate.now()
@@ -152,5 +152,10 @@ class CheckoutService @Inject() (
       case None =>
         Future.successful(0)
     }
+  }
+
+  // DELETE /checkouts/:checkoutId
+  def deleteCheckout(checkoutId: Long): Future[Int] = {
+    checkoutRepo.deleteCheckout(checkoutId)
   }
 }

@@ -11,11 +11,11 @@ import services.CheckoutService
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class CheckoutController @Inject() (
-    cc: ControllerComponents,
-    checkoutService: CheckoutService
-)(implicit ec: ExecutionContext)
-    extends AbstractController(cc) {
+class CheckoutController @Inject()(
+                                    cc: ControllerComponents,
+                                    checkoutService: CheckoutService
+                                  )(implicit ec: ExecutionContext)
+  extends AbstractController(cc) {
 
   // POST /checkouts
   def createCheckout: Action[JsValue] = Action.async(parse.json) { request =>
@@ -25,7 +25,7 @@ class CheckoutController @Inject() (
         errors => Future.successful(BadRequest(JsError.toJson(errors))),
         checkout => {
           checkoutService.createCheckout(checkout).map {
-            case Right(_)  => Created(Json.obj("status" -> "Checkout created"))
+            case Right(_) => Created(Json.obj("status" -> "Checkout created"))
             case Left(msg) => BadRequest(Json.obj("error" -> msg))
           }
         }
@@ -47,7 +47,7 @@ class CheckoutController @Inject() (
         errors => Future.successful(BadRequest(JsError.toJson(errors))),
         checkout => {
           checkoutService.updateCheckout(checkout).map {
-            case Left(msg)       => Ok(Json.obj("status" -> msg))
+            case Left(msg) => Ok(Json.obj("status" -> msg))
             case Right(checkout) =>
               Created(
                 Json.obj("status" -> "Checkout Updated", "checkout" -> checkout)
@@ -63,6 +63,14 @@ class CheckoutController @Inject() (
       case Right(fine) =>
         Ok(Json.obj("status" -> "Book returned successfully", "fine" -> fine))
       case Left(msg) => BadRequest(Json.obj("error" -> msg))
+    }
+  }
+
+  // DELETE /checkout/:checkoutId
+  def deleteCheckout(checkoutId: Long): Action[AnyContent] = Action.async {
+    checkoutService.deleteCheckout(checkoutId).map {
+      case 0 => Ok(Json.toJson("status" -> "Checkout not found"))
+      case _ => Ok(Json.toJson("status" -> "Checkout deleted"))
     }
   }
 }

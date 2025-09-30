@@ -7,16 +7,22 @@ import repo.BookRepo
 
 import javax.inject.Inject
 
-class BookService @Inject() (bookRepo: BookRepo)(implicit
-    ec: ExecutionContext
+class BookService @Inject()(bookRepo: BookRepo)(implicit
+                                                ec: ExecutionContext
 ) {
   def createBook(book: Book): Future[Int] = {
     bookRepo.createBook(book) // Create Book service
   }
+
   def listBook(): Future[Seq[Book]] = {
     bookRepo.listAllBooks // List all books
   }
+
   def updateBook(book: BookPatch): Future[Either[String, Book]] = {
     bookRepo.updateBook(book) // Updates the book
+  }
+
+  def deleteBook(bookId: Long): Future[Int] = {
+    bookRepo.deleteBook(bookId) // Delete a book
   }
 }

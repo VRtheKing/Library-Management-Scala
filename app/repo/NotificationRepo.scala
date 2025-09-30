@@ -10,10 +10,10 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class NotificationRepo @Inject() (
-    protected val dbConfigProvider: DatabaseConfigProvider
-)(implicit ec: ExecutionContext)
-    extends HasDatabaseConfigProvider[JdbcProfile] {
+class NotificationRepo @Inject()(
+                                  protected val dbConfigProvider: DatabaseConfigProvider
+                                )(implicit ec: ExecutionContext)
+  extends HasDatabaseConfigProvider[JdbcProfile] {
 
   val notifications = TableQuery[models.NotificationModel]
 

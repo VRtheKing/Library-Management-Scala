@@ -6,17 +6,17 @@ A RESTful API for managing users, books, checkouts, and notifications in a libra
 
 ## 📍 Base URL
 
-`http://localhost:9000/` 
+`http://localhost:9000/`
 
 ----------
 
 ## 📌 Table of Contents
 
 - [Routes](#%EF%B8%8F-routes)
-  - [User Routes](#-user-routes)
-  - [Book Routes](#-book-routes)
-  - [Checkout Routes](#-checkout-routes)
-  - [Notification Routes](#-notification-route)
+    - [User Routes](#-user-routes)
+    - [Book Routes](#-book-routes)
+    - [Checkout Routes](#-checkout-routes)
+    - [Notification Routes](#-notification-route)
 - [📦 Example Payloads](#-example-payloads)
 - [📊 Flow Diagram](#-flow-diagram)
 - [🧪 Postman Testing](#-postman-testing)
@@ -24,54 +24,50 @@ A RESTful API for managing users, books, checkouts, and notifications in a libra
 - [📡 gRPC Notification Service](#-grpc-notification-service)
 - [🚧 Notes](#-notes)
 
-
 ----------
 
 ## 🛤️ Routes
 
 ### 👤 User Routes
 
-
-| Method | Endpoint         | Description                    |
-|--------|------------------|--------------------------------|
-| POST   | `/users`         | Create a new user              |
-| GET    | `/users`         | List all users                 |
-| PATCH  | `/users`         | Update a user by ID            |
-| GET    | `/borrowedBooks` | List books borrowed by a user  |
+| Method | Endpoint         | Description                   |
+|--------|------------------|-------------------------------|
+| POST   | `/users`         | Create a new user             |
+| GET    | `/users`         | List all users                |
+| PATCH  | `/users`         | Update a user by ID           |
+| GET    | `/borrowedBooks` | List books borrowed by a user |
+| DELETE | `/users/:userId` | Delete User                   |
 
 ----------
 
 ### 📘 Book Routes
 
-
-| Method | Endpoint   | Description         |
-|--------|------------|---------------------|
-| POST   | `/books`   | Create a new book   |
-| GET    | `/books`   | List all books      |
-| PATCH  | `/books`   | Update book details |
-
+| Method | Endpoint         | Description         |
+|--------|------------------|---------------------|
+| POST   | `/books`         | Create a new book   |
+| GET    | `/books`         | List all books      |
+| PATCH  | `/books`         | Update book details |
+| DELETE | `/books/:bookId` | Delete Book         |
 
 ----------
 
 ### 🔄 Checkout Routes
 
-
-| Method | Endpoint                          | Description                    |
-|--------|-----------------------------------|--------------------------------|
-| GET    | `/checkouts`                      | Get checkouts by status        |
-| POST   | `/checkouts`                      | Create a new book checkout     |
-| PATCH  | `/checkout`                       | Update checkout details        |
-| POST   | `/checkouts/:checkoutId/return`   | Return a book by checkout ID   
+| Method | Endpoint                        | Description                  |
+|--------|---------------------------------|------------------------------|
+| GET    | `/checkouts`                    | Get checkouts by status      |
+| POST   | `/checkouts`                    | Create a new book checkout   |
+| PATCH  | `/checkout`                     | Update checkout details      |
+| POST   | `/checkouts/:checkoutId/return` | Return a book by checkout ID 
+| DELETE | `checkouts/:checkoutId`         | Deletes a checkout           
 
 ----------
 
 ### 🔔 Notification Route
 
-
-| Method | Endpoint         | Description                |
-|--------|------------------|----------------------------|
-| GET    | `/notifications` | Get all notification logs  |
-
+| Method | Endpoint         | Description               |
+|--------|------------------|---------------------------|
+| GET    | `/notifications` | Get all notification logs |
 
 ----------
 
@@ -135,7 +131,7 @@ POST /checkouts
 
 ### 🔁 Return Book
 
-`POST /checkouts/1/return` 
+`POST /checkouts/1/return`
 
 ----------
 
@@ -151,55 +147,55 @@ PATCH /checkout
 ``` 
 
 ----------
+
 ## 🗄️ Database Table Schemas
 
 ### User Table
 
-| Column     | Type             | Constraints                  |
-|------------|------------------|------------------------------|
-| id         | Long             | Primary Key, Auto Increment   |
-| name       | String           |                              |
-| email      | String           | Unique                       |
-| created_at | LocalDateTime    |                              |
+| Column     | Type          | Constraints                 |
+|------------|---------------|-----------------------------|
+| id         | Long          | Primary Key, Auto Increment |
+| name       | String        |                             |
+| email      | String        | Unique                      |
+| created_at | LocalDateTime |                             |
 
 ---
 
 ### Book Table
 
-| Column     | Type             | Constraints                  |
-|------------|------------------|------------------------------|
-| id         | Long             | Primary Key, Auto Increment   |
-| title      | String           |                              |
-| author     | String           |                              |
-| isbn       | String           |                              |
-| stock      | Int              |                              |
-| fine       | Int              |                              |
-| updated_at | LocalDateTime    |                              |
+| Column     | Type          | Constraints                 |
+|------------|---------------|-----------------------------|
+| id         | Long          | Primary Key, Auto Increment |
+| title      | String        |                             |
+| author     | String        |                             |
+| isbn       | String        |                             |
+| stock      | Int           |                             |
+| fine       | Int           |                             |
+| updated_at | LocalDateTime |                             |
 
 ---
 
 ### Checkout Table
 
-| Column      | Type           | Constraints                         |
-|-------------|----------------|-----------------------------------|
-| id          | Long           | Primary Key, Auto Increment         |
-| user_id     | Long           | Foreign Key → users(id), Cascade   |
-| book_id     | Long           | Foreign Key → books(id), Cascade   |
-| due_date    | LocalDate      |                                   |
-| return_date | LocalDate?     | Nullable                          |
-| fine        | BigDecimal?    | Nullable                          |
-| returned    | Boolean        |                                   |
+| Column      | Type        | Constraints                      |
+|-------------|-------------|----------------------------------|
+| id          | Long        | Primary Key, Auto Increment      |
+| user_id     | Long        | Foreign Key → users(id), Cascade |
+| book_id     | Long        | Foreign Key → books(id), Cascade |
+| due_date    | LocalDate   |                                  |
+| return_date | LocalDate?  | Nullable                         |
+| fine        | BigDecimal? | Nullable                         |
+| returned    | Boolean     |                                  |
 
 ---
 
 ### Notification Table
 
-| Column      | Type           | Constraints                      |
-|-------------|----------------|--------------------------------|
-| id          | Long           | Primary Key, Auto Increment      |
-| message     | String         |                                |
-| created_at  | LocalDateTime  |                                |
-
+| Column     | Type          | Constraints                 |
+|------------|---------------|-----------------------------|
+| id         | Long          | Primary Key, Auto Increment |
+| message    | String        |                             |
+| created_at | LocalDateTime |                             |
 
 ----------
 
@@ -217,18 +213,17 @@ PATCH /checkout
 
 ## 🛠️ Tech Stack
 
--   **Language**: Scala
-    
--   **Framework**: Play Framework
-    
--   **Scheduler**: Pekko (Akka)
-    
--   **Database**: PostgreSQL (via Slick ORM)
-    
--   **Async**: Futures-based concurrency
-    
--   **Notifications**: gRPC-based streaming service
-    
+- **Language**: Scala
+
+- **Framework**: Play Framework
+
+- **Scheduler**: Pekko (Akka)
+
+- **Database**: PostgreSQL (via Slick ORM)
+
+- **Async**: Futures-based concurrency
+
+- **Notifications**: gRPC-based streaming service
 
 ----------
 
@@ -260,17 +255,16 @@ service NotificationService {
 }
 ```
 
--   **gRPC Server**: `localhost:50051`
-    
+- **gRPC Server**: `localhost:50051`
 
 ----------
 
 ## 🚧 Notes
 
--   Overdue checkouts are **automatically checked every 5 minutes** via scheduled tasks.
-    
--   Users with overdue books will receive real-time notifications via the **gRPC NotificationService**.
-    
--   **Fines are auto-calculated** and updated in the checkout record.
-    
--   Notifications are also **persisted in the database** and can be queried via `/notifications`.
+- Overdue checkouts are **automatically checked every 5 minutes** via scheduled tasks.
+
+- Users with overdue books will receive real-time notifications via the **gRPC NotificationService**.
+
+- **Fines are auto-calculated** and updated in the checkout record.
+
+- Notifications are also **persisted in the database** and can be queried via `/notifications`.

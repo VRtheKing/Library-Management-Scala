@@ -14,14 +14,14 @@ import service.notification.notifications._
 import scala.util.{Failure, Success}
 
 class NotificationServiceImpl(
-    checkoutService: CheckoutService,
-    userService: UserService
-)(implicit ec: ExecutionContext)
-    extends NotificationServiceGrpc.NotificationService {
+                               checkoutService: CheckoutService,
+                               userService: UserService
+                             )(implicit ec: ExecutionContext)
+  extends NotificationServiceGrpc.NotificationService {
   override def subscribeNotifications(
-      request: SubscribeRequest,
-      responseObserver: StreamObserver[Notification]
-  ): Unit = {
+                                       request: SubscribeRequest,
+                                       responseObserver: StreamObserver[Notification]
+                                     ): Unit = {
     checkoutService.findOverdueCheckouts().onComplete {
       case Success(overdueList) =>
         val groupedByUser = overdueList.groupBy(_.userId)
@@ -77,11 +77,11 @@ class NotificationServiceImpl(
 }
 
 @Singleton
-class GrpcServer @Inject() (
-    checkoutService: CheckoutService,
-    userService: UserService,
-    lifecycle: ApplicationLifecycle
-)(implicit ec: ExecutionContext) {
+class GrpcServer @Inject()(
+                            checkoutService: CheckoutService,
+                            userService: UserService,
+                            lifecycle: ApplicationLifecycle
+                          )(implicit ec: ExecutionContext) {
 
   private val notificationService =
     new NotificationServiceImpl(checkoutService, userService)

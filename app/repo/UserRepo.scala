@@ -9,21 +9,25 @@ import slick.jdbc.JdbcProfile
 
 import javax.inject.Inject
 
-class UserRepo @Inject() (
-    protected val dbConfigProvider: DatabaseConfigProvider
-)(implicit val ec: ExecutionContext)
-    extends HasDatabaseConfigProvider[JdbcProfile] {
+class UserRepo @Inject()(
+                          protected val dbConfigProvider: DatabaseConfigProvider
+                        )(implicit val ec: ExecutionContext)
+  extends HasDatabaseConfigProvider[JdbcProfile] {
   val users = TableQuery[models.UserModel]
   var checkout = TableQuery[models.CheckoutModel]
+
   def createUser(user: User): Future[Int] = {
     db.run(users.map(_.insertProjection) += user) // Creates a new user
   }
+
   def listUsers(): Future[Seq[User]] = {
     db.run(users.result) // Fetches all users
   }
+
   def findById(userId: Long): Future[Option[User]] = {
     db.run(users.filter(_.id === userId).result.headOption) // Finds user by ID
   }
+
   def updateUser(updatedUser: UserPatch): Future[Either[String, User]] = {
     val finder = users.filter(_.id === updatedUser.id)
     db.run(finder.result.headOption).flatMap {
@@ -47,6 +51,7 @@ class UserRepo @Inject() (
       }
     }
   }
+
   def listBorrowedBooks(userId: Long): Future[Seq[BorrowedBook]] = {
     val books = TableQuery[models.BookModel]
     val query = for {
@@ -58,5 +63,9 @@ class UserRepo @Inject() (
       .map(_.map { case (checkoutId, title) =>
         BorrowedBook(checkoutId, title)
       })
+  }
+
+  def deleteUser(userId: Long) = {
+    db.run((users.filter(_.id === userId).delete))
   }
 }
