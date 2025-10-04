@@ -4,7 +4,7 @@
 POST    /users                     controllers.UserController.createUser
 GET     /users                     controllers.UserController.listUsers
 PATCH   /users                     controllers.UserController.updateUser
-GET     /borrowedBooks     controllers.UserController.borrowedBooks(userId: Long)
+GET     /borrowedBooks/:userId     controllers.UserController.borrowedBooks(userId: Long)
 DELETE /users/:userId           controllers.UserController.deleteUser(userId: Long)
 
 # Book routes
@@ -22,3 +22,6 @@ DELETE /checkouts/:checkoutId       controllers.CheckoutController.deleteCheckou
 
 # Notification Log route
 GET     /notifications        controllers.NotificationController.getNotifications
+
+#Authentication
+# POST   /login     controllers.AuthController.login

@@ -67,7 +67,7 @@ class UserController @Inject()(
 
   // DELETE /users/:userId
   def deleteUser(userId: Long): Action[AnyContent] = Action.async {
-    userService.deleteUser(userId).map{
+    userService.deleteUser(userId).map {
       case 0 => Ok(Json.toJson("Status" -> "User Not Found"))
       case _ => Ok(Json.toJson("Status" -> "User Deleted"))
     }

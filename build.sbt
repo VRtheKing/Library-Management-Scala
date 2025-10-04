@@ -38,6 +38,12 @@ libraryDependencies ++= Seq(
   "org.mockito" %% "mockito-scala-scalatest" % "2.0.0" % Test
 
 )
+
+libraryDependencies ++= Seq(
+  "com.github.jwt-scala" %% "jwt-play-json" % "11.0.3",
+  "com.github.t3hnar" %% "scala-bcrypt" % "4.3.0"
+)
+
 dependencyOverrides += "com.google.guava" % "guava" % "33.4.8-jre"
 
 Compile / PB.targets := Seq(

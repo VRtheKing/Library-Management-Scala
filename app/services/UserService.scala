@@ -6,11 +6,13 @@ import scala.concurrent.{ExecutionContext, Future}
 import repo.UserRepo
 
 import javax.inject.Inject
+import com.github.t3hnar.bcrypt._
 
 class UserService @Inject()(userRepo: UserRepo)(implicit
                                                 ec: ExecutionContext
 ) {
   def createUser(user: User): Future[Int] = {
+    //    val hashUser = user.copy(passwordHash = user.passwordHash.boundedBcrypt)
     userRepo.createUser(user) // Creates a user
   }
 
