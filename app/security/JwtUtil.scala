@@ -13,7 +13,7 @@ object JwtUtil {
   private val config = ConfigFactory.load()
   private val secret: String = config.getString("jwt.secret")
   val SecretKey = secret
-  val Ttl = 30 // seconds
+  val Ttl = 180 // seconds
 
   def createToken(secretKey: String, data: Map[String, String]): String = {
     val claimsJson = data.asJson.noSpaces
@@ -34,5 +34,10 @@ object JwtUtil {
         }
       case Failure(_) => None
     }
+  }
+
+  def hasRole[A](requiredRoles: List[String])(request: JwtRequest[A]): Boolean = {
+//    println(request.toString())
+    requiredRoles.contains(request.role)
   }
 }

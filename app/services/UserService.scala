@@ -45,7 +45,7 @@ class UserService @Inject()(userRepo: UserRepo)(implicit
     userRepo.validateUser(user).map {
       case Some(returnedUser) =>
         if (user.passwordHash.isBcryptedBounded(returnedUser.passwordHash)) {
-          val claims = Map("userId" -> (returnedUser.email + returnedUser.passwordHash))
+          val claims = Map("userId" -> (returnedUser.email + returnedUser.passwordHash), "role" -> returnedUser.role)
           val token = JwtUtil.createToken(JwtUtil.SecretKey, claims)
           Right(token)
         } else {

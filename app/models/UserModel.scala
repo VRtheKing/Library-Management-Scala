@@ -9,10 +9,11 @@ case class User(
                  name: String,
                  email: String,
                  passwordHash: String,
+                 role: String, // Admin, Librarian, User
                  createdAt: Option[LocalDateTime]
                )
 
-case class UserPatch(id: Long, name: Option[String], email: Option[String])
+case class UserPatch(id: Long, name: Option[String], email: Option[String], role: Option[String])
 
 case class BorrowedBook(checkoutId: Long, title: String)
 
@@ -27,15 +28,17 @@ class UserModel(tag: Tag) extends Table[User](tag, "users") {
 
   def passwordHash = column[String]("passwordHash")
 
+  def role = column[String]("role")
+
   def createdAt = column[LocalDateTime]("created_at")
 
-  def * = (id.?, name, email, passwordHash, createdAt.?).mapTo[User]
+  def * = (id.?, name, email, passwordHash, role, createdAt.?).mapTo[User]
 
-  def insertProjection() = (name, email, passwordHash) <> (
-    (User(None, _, _, _, None)).tupled,
+  def insertProjection() = (name, email, passwordHash, role) <> (
+    (User(None, _, _, _, _, None)).tupled,
     (u: User) =>
       Some(
-        (u.name, u.email, u.passwordHash)
+        (u.name, u.email, u.passwordHash, u.role)
       ) // Partial Projection for insertion without id and createdAt
   )
 }

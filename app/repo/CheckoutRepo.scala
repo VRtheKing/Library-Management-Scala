@@ -100,6 +100,6 @@ class CheckoutRepo @Inject()(
   }
 
   def deleteCheckout(id: Long): Future[Int] = {
-    db.run(checkouts.filter(_.id===id).delete) // deletes the checkout
+    db.run(checkouts.filter(_.id === id).delete) // deletes the checkout
   }
 }
