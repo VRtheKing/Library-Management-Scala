@@ -6,6 +6,7 @@ import javax.inject._
 import play.api.mvc._
 import play.api.libs.json._
 import models.{Book, BookPatch}
+import security.JwtAction
 import services.BookService
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -13,12 +14,13 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class BookController @Inject()(
                                 cc: ControllerComponents,
-                                bookService: BookService
+                                bookService: BookService,
+                                jwtAction: JwtAction
                               )(implicit ec: ExecutionContext)
   extends AbstractController(cc) {
 
   // POST /books
-  def createBook: Action[JsValue] = Action.async(parse.json) { request =>
+  def createBook: Action[JsValue] = jwtAction.async(parse.json) { request =>
     request.body
       .validate[Book]
       .fold(

@@ -3,9 +3,8 @@ package controllers
 import javax.inject._
 import play.api.mvc._
 import play.api.libs.json._
-import models.{User, UserPatch}
+import models.{User, UserLogin, UserPatch}
 import services.UserService
-
 import models.User.updateUserFormat
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -71,5 +70,19 @@ class UserController @Inject()(
       case 0 => Ok(Json.toJson("Status" -> "User Not Found"))
       case _ => Ok(Json.toJson("Status" -> "User Deleted"))
     }
+  }
+
+  // POST /login
+  def userLogin: Action[JsValue] = Action.async(parse.json) { request =>
+    request.body.validate[UserLogin].fold(
+      errors => Future.successful(BadRequest(Json.obj("status" -> "Invalid JSON"))),
+      loginUser => {
+        userService.loginUser(loginUser).map {
+          case Left(errorMessage) => Ok(Json.obj("status" -> errorMessage))
+          case Right(token) =>
+            Created(Json.obj("status" -> "User Logged In", "JWT" -> token))
+        }
+      }
+    )
   }
 }
