@@ -6,13 +6,12 @@ import slick.jdbc.PostgresProfile.api._
 import java.time.LocalDateTime
 
 case class Notification(
-                         id: Option[Long],
-                         message: String,
-                         created_at: LocalDateTime
-                       )
+    id: Option[Long],
+    message: String,
+    created_at: LocalDateTime
+)
 
-class NotificationModel(tag: Tag)
-  extends Table[Notification](tag, "notifications") {
+class NotificationModel(tag: Tag) extends Table[Notification](tag, "notifications") {
   def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
 
   def message = column[String]("message")

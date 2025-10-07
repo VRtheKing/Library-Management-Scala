@@ -9,10 +9,10 @@ import slick.jdbc.JdbcProfile
 
 import javax.inject.Inject
 
-class UserRepo @Inject()(
-                          protected val dbConfigProvider: DatabaseConfigProvider
-                        )(implicit val ec: ExecutionContext)
-  extends HasDatabaseConfigProvider[JdbcProfile] {
+class UserRepo @Inject() (
+    protected val dbConfigProvider: DatabaseConfigProvider
+)(implicit val ec: ExecutionContext)
+    extends HasDatabaseConfigProvider[JdbcProfile] {
   val users = TableQuery[models.UserModel]
   var checkout = TableQuery[models.CheckoutModel]
 

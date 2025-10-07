@@ -11,23 +11,22 @@ import services.BookService
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class BookController @Inject()(
-                                cc: ControllerComponents,
-                                bookService: BookService
-                              )(implicit ec: ExecutionContext)
-  extends AbstractController(cc) {
+class BookController @Inject() (
+    cc: ControllerComponents,
+    bookService: BookService
+)(implicit ec: ExecutionContext)
+    extends AbstractController(cc) {
 
   // POST /books
   def createBook: Action[JsValue] = Action.async(parse.json) { request =>
     request.body
       .validate[Book]
       .fold(
-        errors =>
-          Future.successful(BadRequest(Json.obj("error" -> "Invalid JSON"))),
+        errors => Future.successful(BadRequest(Json.obj("error" -> "Invalid JSON"))),
         book => {
           bookService.createBook(book).map {
             case -1 => Ok(Json.obj("status" -> "Book already exists"))
-            case _ => Created(Json.obj("status" -> "Book created"))
+            case _  => Created(Json.obj("status" -> "Book created"))
           }
         }
       )
@@ -38,8 +37,7 @@ class BookController @Inject()(
     request.body
       .validate[BookPatch]
       .fold(
-        errors =>
-          Future.successful(BadRequest(Json.obj("error" -> "Invalid JSON"))),
+        errors => Future.successful(BadRequest(Json.obj("error" -> "Invalid JSON"))),
         book => {
           bookService.updateBook(book).map {
             case Left(msg) => Ok(Json.obj("status" -> msg))

@@ -8,8 +8,8 @@ import repo.UserRepo
 import javax.inject.Inject
 import com.github.t3hnar.bcrypt._
 
-class UserService @Inject()(userRepo: UserRepo)(implicit
-                                                ec: ExecutionContext
+class UserService @Inject() (userRepo: UserRepo)(implicit
+    ec: ExecutionContext
 ) {
   def createUser(user: User): Future[Int] = {
     //    val hashUser = user.copy(passwordHash = user.passwordHash.boundedBcrypt)
@@ -23,7 +23,7 @@ class UserService @Inject()(userRepo: UserRepo)(implicit
   def getUsername(userId: Long): Future[Option[String]] = {
     userRepo.findById(userId).map {
       case Some(user) => Some(user.name) // Returns username if exists
-      case None => None // None if user not found
+      case None       => None // None if user not found
     }
   }
 

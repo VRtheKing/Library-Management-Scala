@@ -31,12 +31,10 @@ dependencyOverrides ++= Seq(
 libraryDependencies ++= Seq(
   "io.grpc" % "grpc-netty" % "1.75.0",
   "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion,
-
   specs2 % Test,
   "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.2" % Test,
   "org.scalatest" %% "scalatest" % "3.2.19" % Test,
   "org.mockito" %% "mockito-scala-scalatest" % "2.0.0" % Test
-
 )
 
 libraryDependencies ++= Seq(

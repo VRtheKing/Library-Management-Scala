@@ -11,11 +11,11 @@ import services.CheckoutService
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class CheckoutController @Inject()(
-                                    cc: ControllerComponents,
-                                    checkoutService: CheckoutService
-                                  )(implicit ec: ExecutionContext)
-  extends AbstractController(cc) {
+class CheckoutController @Inject() (
+    cc: ControllerComponents,
+    checkoutService: CheckoutService
+)(implicit ec: ExecutionContext)
+    extends AbstractController(cc) {
 
   // POST /checkouts
   def createCheckout: Action[JsValue] = Action.async(parse.json) { request =>
@@ -25,7 +25,7 @@ class CheckoutController @Inject()(
         errors => Future.successful(BadRequest(JsError.toJson(errors))),
         checkout => {
           checkoutService.createCheckout(checkout).map {
-            case Right(_) => Created(Json.obj("status" -> "Checkout created"))
+            case Right(_)  => Created(Json.obj("status" -> "Checkout created"))
             case Left(msg) => BadRequest(Json.obj("error" -> msg))
           }
         }

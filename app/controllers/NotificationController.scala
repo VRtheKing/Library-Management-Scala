@@ -7,11 +7,11 @@ import services.NotificationService
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class NotificationController @Inject()(
-                                        cc: ControllerComponents,
-                                        notificationService: NotificationService
-                                      )(implicit ec: ExecutionContext)
-  extends AbstractController(cc) {
+class NotificationController @Inject() (
+    cc: ControllerComponents,
+    notificationService: NotificationService
+)(implicit ec: ExecutionContext)
+    extends AbstractController(cc) {
 
   // GET /notifications
   def getNotifications: Action[AnyContent] = Action.async {

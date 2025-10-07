@@ -5,11 +5,11 @@ import play.api.libs.json.{Json, OFormat}
 import slick.jdbc.PostgresProfile.api._
 
 case class User(
-                 id: Option[Long],
-                 name: String,
-                 email: String,
-                 createdAt: Option[LocalDateTime]
-               )
+    id: Option[Long],
+    name: String,
+    email: String,
+    createdAt: Option[LocalDateTime]
+)
 
 case class UserPatch(id: Long, name: Option[String], email: Option[String])
 

@@ -6,22 +6,22 @@ import slick.jdbc.PostgresProfile.api._
 import java.time.LocalDateTime
 
 case class Book(
-                 id: Option[Long],
-                 title: String,
-                 author: String,
-                 isbn: String,
-                 stock: Int,
-                 updated_at: Option[LocalDateTime],
-                 fine: Int
-               )
+    id: Option[Long],
+    title: String,
+    author: String,
+    isbn: String,
+    stock: Int,
+    updated_at: Option[LocalDateTime],
+    fine: Int
+)
 
 case class BookPatch(
-                      id: Long,
-                      title: Option[String],
-                      author: Option[String],
-                      isbn: Option[String],
-                      stock: Option[Int]
-                    )
+    id: Long,
+    title: Option[String],
+    author: Option[String],
+    isbn: Option[String],
+    stock: Option[Int]
+)
 
 // BookModel
 class BookModel(tag: Tag) extends Table[Book](tag, "books") {

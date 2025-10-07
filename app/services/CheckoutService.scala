@@ -11,11 +11,11 @@ import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class CheckoutService @Inject()(
-                                 checkoutRepo: CheckoutRepo,
-                                 bookRepo: BookRepo,
-                                 userRepo: UserRepo
-                               )(implicit ec: ExecutionContext) {
+class CheckoutService @Inject() (
+    checkoutRepo: CheckoutRepo,
+    bookRepo: BookRepo,
+    userRepo: UserRepo
+)(implicit ec: ExecutionContext) {
 
   def createCheckout(checkout: Checkout): Future[Either[String, Int]] = {
     val queryTransaction: DBIO[Either[String, Int]] = for {
@@ -57,8 +57,8 @@ class CheckoutService @Inject()(
   }
 
   def updateCheckout(
-                      update: CheckoutPatch
-                    ): Future[Either[String, Checkout]] = {
+      update: CheckoutPatch
+  ): Future[Either[String, Checkout]] = {
     checkoutRepo.findById(update.id).flatMap {
       case None => Future.successful(Left("Checkout not found"))
       case Some(existingCheckout) =>
@@ -116,12 +116,11 @@ class CheckoutService @Inject()(
               BigDecimal(
                 0
               ) // 0 fine if there is no delay in return from teh dueDate
-            checkoutRepo.returnBook(checkoutId, today, Some(fine)).flatMap {
-              _ =>
-                bookRepo.increaseStock(checkout.bookId).map {
-                  _ => // Increase the stock is the return is successful
-                    Right(fine)
-                }
+            checkoutRepo.returnBook(checkoutId, today, Some(fine)).flatMap { _ =>
+              bookRepo.increaseStock(checkout.bookId).map {
+                _ => // Increase the stock is the return is successful
+                  Right(fine)
+              }
             }
           }
         }

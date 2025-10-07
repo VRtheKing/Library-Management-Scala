@@ -8,12 +8,12 @@ import scala.concurrent.duration._
 import org.apache.pekko.actor.ActorSystem
 
 @Singleton
-class OverdueCheckerJob @Inject()(
-                                   actorSystem: ActorSystem,
-                                   checkoutService: CheckoutService,
-                                   notificationService: NotificationService,
-                                   userService: UserService
-                                 )(implicit ec: ExecutionContext) {
+class OverdueCheckerJob @Inject() (
+    actorSystem: ActorSystem,
+    checkoutService: CheckoutService,
+    notificationService: NotificationService,
+    userService: UserService
+)(implicit ec: ExecutionContext) {
 
   println("[JOB] OD Constructor Init")
 
@@ -35,8 +35,7 @@ class OverdueCheckerJob @Inject()(
               s"UserId: ${checkout.userId} (username not found) has an overdue book (Book ID: ${checkout.bookId}). Due: ${checkout.dueDate}"
             notificationService.notify(msg) // Sends out the notification
         }
-        checkout.id.foreach(id =>
-          checkoutService.calculateFine(id) // Updates the fine to the DB
+        checkout.id.foreach(id => checkoutService.calculateFine(id) // Updates the fine to the DB
         )
       }
     }

@@ -7,8 +7,8 @@ import repo.BookRepo
 
 import javax.inject.Inject
 
-class BookService @Inject()(bookRepo: BookRepo)(implicit
-                                                ec: ExecutionContext
+class BookService @Inject() (bookRepo: BookRepo)(implicit
+    ec: ExecutionContext
 ) {
   def createBook(book: Book): Future[Int] = {
     bookRepo.createBook(book) // Create Book service
