@@ -1,6 +1,6 @@
 package repo
 
-import models.{BorrowedBook, Checkout, User, UserPatch}
+import models.{BorrowedBook, Checkout, User, UserLogin, UserPatch}
 
 import scala.concurrent.{ExecutionContext, Future}
 import slick.jdbc.PostgresProfile.api._
@@ -67,5 +67,9 @@ class UserRepo @Inject() (
 
   def deleteUser(userId: Long) = {
     db.run((users.filter(_.id === userId).delete))
+  }
+
+  def validateUser(currentUser: UserLogin): Future[Option[User]] = {
+    db.run(users.filter(_.email === currentUser.email).result.headOption)
   }
 }

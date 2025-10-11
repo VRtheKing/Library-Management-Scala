@@ -24,4 +24,4 @@ DELETE /checkouts/:checkoutId       controllers.CheckoutController.deleteCheckou
 GET     /notifications        controllers.NotificationController.getNotifications
 
 #Authentication
-# POST   /login     controllers.AuthController.login
+POST    /login                  controllers.UserController.userLogin

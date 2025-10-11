@@ -16,7 +16,9 @@ libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-slick" % "5.4.0",
   "com.typesafe.play" %% "play-slick-evolutions" % "5.4.0",
   "org.postgresql" % "postgresql" % "42.7.7",
-  "com.typesafe.play" %% "filters-helpers" % "2.8.22"
+  "com.typesafe.play" %% "filters-helpers" % "2.8.22",
+  "com.github.jwt-scala" %% "jwt-circe" % "11.0.3",
+  "com.github.t3hnar" %% "scala-bcrypt" % "4.3.0"
 )
 
 dependencyOverrides ++= Seq(
