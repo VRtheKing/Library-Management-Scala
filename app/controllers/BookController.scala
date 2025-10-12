@@ -22,7 +22,7 @@ class BookController @Inject()(
 
   // POST /books
   def createBook: Action[JsValue] = jwtAction.async(parse.json) { request =>
-    if (hasRole(List("Admin", "Librarian"))(request)) {
+    if (hasRole(List(1, 2))(request)) {
       request.body
         .validate[Book]
         .fold(
@@ -43,7 +43,7 @@ class BookController @Inject()(
 
   // PATCH /books
   def updateBook(): Action[JsValue] = jwtAction.async(parse.json) { request =>
-    if (hasRole(List("Admin", "Librarian"))(request)) {
+    if (hasRole(List(1, 2))(request)) {
       request.body
         .validate[BookPatch]
         .fold(
@@ -66,7 +66,7 @@ class BookController @Inject()(
 
   // GET /books
   def listBooks: Action[AnyContent] = jwtAction.async { request =>
-    if (hasRole(List("Admin", "Librarian", "User"))(request)) {
+    if (hasRole(List(1,2,3))(request)) {
       bookService.listBook().map { book =>
         Ok(Json.toJson(book))
       }
@@ -77,7 +77,7 @@ class BookController @Inject()(
 
   // DELETE /books/:id
   def deleteBook(bookId: Long): Action[AnyContent] = jwtAction.async { request =>
-    if (hasRole(List("Admin"))(request)) {
+    if (hasRole(List(1))(request)) {
       bookService.deleteBook(bookId).map {
         case 0 => Ok(Json.toJson("Status" -> "Book Not Found"))
         case _ => Ok(Json.toJson("Status" -> "Book Deleted"))

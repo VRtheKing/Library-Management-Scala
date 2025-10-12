@@ -1,6 +1,6 @@
 package services
 
-import models.{BorrowedBook, User, UserLogin, UserPatch}
+import models.{BorrowedBook, TokenPair, User, UserLogin, UserPatch}
 import play.api.libs.json.Json
 import play.api.mvc.Results._
 
@@ -11,7 +11,7 @@ import com.github.t3hnar.bcrypt._
 
 import javax.inject.Inject
 
-class UserService @Inject() (userRepo: UserRepo)(implicit
+class UserService @Inject() (tokenService: TokenService, userRepo: UserRepo)(implicit
     ec: ExecutionContext
 ) {
   def createUser(user: User): Future[Int] = {
@@ -41,18 +41,19 @@ class UserService @Inject() (userRepo: UserRepo)(implicit
     userRepo.deleteUser(userId) // Delete User
   }
 
-  def loginUser(user: UserLogin): Future[Either[String, String]] = {
-    userRepo.validateUser(user).map {
+  def loginUser(user: UserLogin): Future[Either[String, TokenPair]] = {
+    userRepo.validateUser(user).flatMap {
       case Some(returnedUser) =>
         if (user.passwordHash.isBcryptedBounded(returnedUser.passwordHash)) {
-          val claims = Map("userId" -> (returnedUser.email + returnedUser.passwordHash), "role" -> returnedUser.role)
-          val token = JwtUtil.createToken(JwtUtil.SecretKey, claims)
-          Right(token)
+          val claims = Map("email" -> returnedUser.email, "role" -> returnedUser.role.name)
+          val accessToken = JwtUtil.createToken(JwtUtil.SecretKey, claims)
+          tokenService.generateRefreshToken(returnedUser).map { refreshToken =>
+            Right(TokenPair(accessToken, refreshToken))
+          }
         } else {
-          Left("Wrong username or password0")
+          Future.successful(Left("Wrong username or password"))
         }
-      case None => Left("Wrong username or password")
+      case None => Future.successful(Left("Wrong username or password"))
     }
   }
-
 }

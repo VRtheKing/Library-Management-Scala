@@ -25,3 +25,5 @@ GET     /notifications        controllers.NotificationController.getNotification
 
 #Authentication
 POST    /login                  controllers.UserController.userLogin
+POST    /refresh                controllers.UserController.refresh
+POST    /logout                 controllers.UserController.logout

@@ -3,13 +3,14 @@ package models
 import java.time.LocalDateTime
 import play.api.libs.json.{Json, OFormat}
 import slick.jdbc.PostgresProfile.api._
+import models.Role
 
 case class User(
                  id: Option[Long],
                  name: String,
                  email: String,
                  passwordHash: String,
-                 role: String, // Admin, Librarian, User
+                 role: Role, // Admin, Librarian, User
                  createdAt: Option[LocalDateTime]
                )
 
@@ -24,11 +25,11 @@ class UserModel(tag: Tag) extends Table[User](tag, "users") {
 
   def name = column[String]("name")
 
-  def email = column[String]("email")
+  def email = column[String]("email", O.Unique)
 
   def passwordHash = column[String]("passwordHash")
 
-  def role = column[String]("role")
+  def role = column[Role]("role_id")
 
   def createdAt = column[LocalDateTime]("created_at")
 

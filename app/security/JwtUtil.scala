@@ -36,7 +36,7 @@ object JwtUtil {
     }
   }
 
-  def hasRole[A](requiredRoles: List[String])(request: JwtRequest[A]): Boolean = {
+  def hasRole[A](requiredRoles: List[Int])(request: JwtRequest[A]): Boolean = {
 //    println(request.toString())
     requiredRoles.contains(request.role)
   }

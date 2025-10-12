@@ -22,7 +22,7 @@ class CheckoutController @Inject()(
 
   // POST /checkouts
   def createCheckout: Action[JsValue] = jwtAction.async(parse.json) { request =>
-    if (hasRole(List("Admin", "Librarian", "User"))(request)) {
+    if (hasRole(List(1,2,3))(request)) {
       request.body
         .validate[Checkout]
         .fold(
@@ -41,7 +41,7 @@ class CheckoutController @Inject()(
 
   // GET /checkouts
   def getCheckouts(status: String): Action[AnyContent] = jwtAction.async { request =>
-    if (hasRole(List("Admin", "Librarian", "User"))(request)) {
+    if (hasRole(List(1,2,3))(request)) {
       checkoutService.listCheckouts(status).map { checkouts =>
         Ok(Json.toJson(checkouts))
       }
@@ -52,7 +52,7 @@ class CheckoutController @Inject()(
 
   // PATCH /checkout
   def updateCheckout(): Action[JsValue] = jwtAction.async(parse.json) { request =>
-    if (hasRole(List("Admin", "Librarian"))(request)) {
+    if (hasRole(List(1,2))(request)) {
       request.body
         .validate[CheckoutPatch]
         .fold(
@@ -74,7 +74,7 @@ class CheckoutController @Inject()(
 
   // POST    /checkouts/:checkoutId/return
   def returnBook(checkoutId: Long): Action[AnyContent] = jwtAction.async { request =>
-    if (hasRole(List("Admin", "Librarian", "User"))(request)) {
+    if (hasRole(List(1,2,3))(request)) {
       checkoutService.createReturn(checkoutId).map {
         case Right(fine) =>
           Ok(Json.obj("status" -> "Book returned successfully", "fine" -> fine))
@@ -87,7 +87,7 @@ class CheckoutController @Inject()(
 
   // DELETE /checkout/:checkoutId
   def deleteCheckout(checkoutId: Long): Action[AnyContent] = jwtAction.async { request =>
-    if (hasRole(List("Admin"))(request)) {
+    if (hasRole(List(1))(request)) {
       checkoutService.deleteCheckout(checkoutId).map {
         case 0 => Ok(Json.toJson("status" -> "Checkout not found"))
         case _ => Ok(Json.toJson("status" -> "Checkout deleted"))

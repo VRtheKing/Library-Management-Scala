@@ -15,7 +15,7 @@ class AppControllerSpec extends PlaySpec with GuiceOneAppPerTest {
       )
 
       val request = FakeRequest(POST, "/users")
-        .withHeaders("X-Requested-With" -> "XMLHttpRequest")
+        .withHeaders("X-Requested-With" -> "XMLHttpRequest","Authentication" -> "")
         .withBody(jsonBody)
 
       val result = route(app, request).get

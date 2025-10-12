@@ -3,10 +3,11 @@ package controllers
 import javax.inject._
 import play.api.mvc._
 import play.api.libs.json._
-import models.{User, UserLogin, UserPatch}
+import models.{LogoutRequest, RefreshRequest, User, UserLogin, UserPatch}
 import services.UserService
+import services.TokenService
 import models.User.updateUserFormat
-import security.JwtAction
+import security.{JwtAction, JwtUtil}
 import security.JwtUtil.hasRole
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -15,32 +16,29 @@ import scala.concurrent.{ExecutionContext, Future}
 class UserController @Inject()(
                                 cc: ControllerComponents,
                                 userService: UserService,
+                                tokenService: TokenService,
                                 jwtAction: JwtAction
                               )(implicit ec: ExecutionContext)
   extends AbstractController(cc) {
 
   // POST /users
-  def createUser: Action[JsValue] = jwtAction.async(parse.json) { request =>
-    if (hasRole(List("Admin", "Librarian", "User"))(request)) {
-      request.body
-        .validate[User]
-        .fold(
-          errors =>
-            Future.successful(BadRequest(Json.obj("error" -> "Invalid JSON"))),
-          user => {
-            userService.createUser(user).map { _ =>
-              Created(Json.obj("status" -> "User created"))
-            }
+  def createUser: Action[JsValue] = Action.async(parse.json) { request =>
+    request.body
+      .validate[User]
+      .fold(
+        errors =>
+          Future.successful(BadRequest(Json.obj("error" -> "Invalid JSON"))),
+        user => {
+          userService.createUser(user).map { _ =>
+            Created(Json.obj("status" -> "User created"))
           }
-        )
-    } else {
-      Future.successful(Forbidden(Json.obj("status" -> "You do not have permission to create a user")))
-    }
+        }
+      )
   }
 
   // PATCH /users
   def updateUser: Action[JsValue] = jwtAction.async(parse.json) { request =>
-    if (hasRole(List("Admin", "Librarian", "User"))(request)) {
+    if (hasRole(List(1,2,3))(request)) {
       request.body
         .validate[UserPatch]
         .fold(
@@ -64,7 +62,7 @@ class UserController @Inject()(
   // GET /users
 
   def listUsers: Action[AnyContent] = jwtAction.async { request =>
-    if (hasRole(List("Admin", "Librarian", "User"))(request)) {
+    if (hasRole(List(1,2,3))(request)) {
       userService.listUser().map { users =>
         Ok(Json.toJson(users))
       }
@@ -75,7 +73,7 @@ class UserController @Inject()(
 
   // GET /borrowedBooks
   def borrowedBooks(userId: Long): Action[AnyContent] = jwtAction.async { request =>
-    if (hasRole(List("Admin", "Librarian", "User"))(request)) {
+    if (hasRole(List(1,2,3))(request)) {
       userService.listBorrowedBooks(userId).map { books =>
         Ok(Json.toJson(books))
       }
@@ -86,7 +84,7 @@ class UserController @Inject()(
 
   // DELETE /users/:userId
   def deleteUser(userId: Long): Action[AnyContent] = jwtAction.async { request =>
-    if (hasRole(List("Admin"))(request)) {
+    if (hasRole(List(1))(request)) {
       userService.deleteUser(userId).map {
         case 0 => Ok(Json.toJson("Status" -> "User Not Found"))
         case _ => Ok(Json.toJson("Status" -> "User Deleted"))
@@ -103,8 +101,44 @@ class UserController @Inject()(
       loginUser => {
         userService.loginUser(loginUser).map {
           case Left(errorMessage) => Ok(Json.obj("status" -> errorMessage))
-          case Right(token) =>
-            Created(Json.obj("status" -> "User Logged In", "JWT" -> token))
+          case Right(tokenPair) =>
+            Created(Json.obj(
+              "status" -> "User Logged In",
+              "accessToken" -> tokenPair.accessToken,
+              "refreshToken" -> tokenPair.refreshToken
+            ))
+        }
+      }
+    )
+  }
+
+  // POST /refresh
+  def refresh: Action[JsValue] = Action.async(parse.json) { implicit request =>
+    request.body.validate[RefreshRequest].fold(
+      _ => Future.successful(BadRequest(Json.obj("error" -> "Invalid refresh request"))),
+      refreshReq => {
+        tokenService.validateRefreshToken(refreshReq.refreshToken).map {
+          case Right(user) =>
+            val accessToken = JwtUtil.createToken(
+              JwtUtil.SecretKey,
+              Map("email" -> user.email, "role" -> user.role.name)
+            )
+            Ok(Json.obj("accessToken" -> accessToken))
+
+          case Left(error) =>
+            Unauthorized(Json.obj("error" -> error))
+        }
+      }
+    )
+  }
+
+  // POST /logout
+  def logout: Action[JsValue] = Action.async(parse.json) { implicit request =>
+    request.body.validate[LogoutRequest].fold(
+      _ => Future.successful(BadRequest(Json.obj("error" -> "Invalid logout request"))),
+      logoutReq => {
+        tokenService.revokeToken(logoutReq.refreshToken).map { _ =>
+          Ok(Json.obj("message" -> "Logged out successfully"))
         }
       }
     )
