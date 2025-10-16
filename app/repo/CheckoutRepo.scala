@@ -15,7 +15,7 @@ class CheckoutRepo @Inject() (
 )(implicit val ec: ExecutionContext)
     extends HasDatabaseConfigProvider[JdbcProfile] {
 
-  val checkouts = TableQuery[models.CheckoutModel]
+  var checkouts = TableQuery[models.CheckoutModel]
   val books = TableQuery[models.BookModel]
 
   def createCheckout[T](query: DBIO[T]): Future[T] = {
@@ -52,8 +52,9 @@ class CheckoutRepo @Inject() (
           ) // if no changes are made it is returned
         } else {
           db.run(finder.update(updatedCheckout)).flatMap { _ =>
-            db.run(finder.result.headOption).map { case Some(updated) =>
-              Right(updated) // returns the updated book
+            db.run(finder.result.headOption).map {
+              case Some(updated) => Right(updated) // returns the updated book
+              case None => Left("None")
             }
           }
         }

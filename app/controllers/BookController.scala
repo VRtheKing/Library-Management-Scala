@@ -22,7 +22,7 @@ class BookController @Inject()(
 
   // POST /books
   def createBook: Action[JsValue] = jwtAction.async(parse.json) { request =>
-    if (hasRole(List(1, 2))(request)) {
+    if (hasRole(List(3,2))(request)) {
       request.body
         .validate[Book]
         .fold(
@@ -43,7 +43,7 @@ class BookController @Inject()(
 
   // PATCH /books
   def updateBook(): Action[JsValue] = jwtAction.async(parse.json) { request =>
-    if (hasRole(List(1, 2))(request)) {
+    if (hasRole(List(2,3))(request)) {
       request.body
         .validate[BookPatch]
         .fold(
@@ -53,7 +53,7 @@ class BookController @Inject()(
             bookService.updateBook(book).map {
               case Left(msg) => Ok(Json.obj("status" -> msg))
               case Right(book) =>
-                Created(
+                Ok(
                   Json.obj("Status" -> "Book Updated", "updatedBook" -> book)
                 )
             }
@@ -77,10 +77,10 @@ class BookController @Inject()(
 
   // DELETE /books/:id
   def deleteBook(bookId: Long): Action[AnyContent] = jwtAction.async { request =>
-    if (hasRole(List(1))(request)) {
+    if (hasRole(List(3))(request)) {
       bookService.deleteBook(bookId).map {
-        case 0 => Ok(Json.toJson("Status" -> "Book Not Found"))
-        case _ => Ok(Json.toJson("Status" -> "Book Deleted"))
+        case 0 => Ok(Json.obj("Status" -> "Book Not Found"))
+        case _ => Ok(Json.obj("Status" -> "Book Deleted"))
       }
     } else {
       Future.successful(Forbidden(Json.obj("status" -> "You do not have permission to delete a book")))

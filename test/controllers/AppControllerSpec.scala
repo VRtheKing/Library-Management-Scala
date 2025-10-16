@@ -5,17 +5,20 @@ import play.api.test._
 import play.api.test.Helpers._
 
 class AppControllerSpec extends PlaySpec with GuiceOneAppPerTest {
+  var token = ""
 
   // Create User Test
   "POST /users" should {
     "create a new user" in {
       val jsonBody = Json.obj(
         "name" -> "Alice",
-        "email" -> "alice@example.com"
+        "email" -> "alice@example.com",
+        "passwordHash" -> "12345678",
+        "role" -> "ADMIN"
       )
 
       val request = FakeRequest(POST, "/users")
-        .withHeaders("X-Requested-With" -> "XMLHttpRequest","Authentication" -> "")
+        .withHeaders("X-Requested-With" -> "XMLHttpRequest")
         .withBody(jsonBody)
 
       val result = route(app, request).get
@@ -24,12 +27,31 @@ class AppControllerSpec extends PlaySpec with GuiceOneAppPerTest {
     }
   }
 
+  // Login
+  "POST /login" should {
+    "login user" in {
+      val jsonBody = Json.obj(
+        "email" -> "alice@example.com",
+        "passwordHash" -> "12345678"
+      )
+
+      val request = FakeRequest(POST, "/login")
+        .withHeaders("X-Requested-With" -> "XMLHttpRequest")
+        .withBody(jsonBody)
+
+      val result = route(app, request).get
+      status(result) mustBe CREATED
+      (contentAsJson(result) \ "status").as[String] mustBe "User Logged In"
+      token = (contentAsJson(result) \ "accessToken").as[String]
+    }
+  }
+
   // Fetch Users Test
   "GET /users" should {
     "return a list of users" in {
       val request = FakeRequest(GET, "/users")
-        .withHeaders("X-Requested-With" -> "XMLHttpRequest")
-
+        .withHeaders("X-Requested-With" -> "XMLHttpRequest","Authorization" -> s"Bearer $token")
+      print(token)
       val result = route(app, request).get
       status(result) mustBe OK
       contentType(result) mustBe Some("application/json")
@@ -46,7 +68,7 @@ class AppControllerSpec extends PlaySpec with GuiceOneAppPerTest {
       )
 
       val request = FakeRequest(PATCH, "/users")
-        .withHeaders("X-Requested-With" -> "XMLHttpRequest")
+        .withHeaders("X-Requested-With" -> "XMLHttpRequest","Authorization" -> s"Bearer $token")
         .withBody(jsonBody)
 
       val result = route(app, request).get
@@ -66,7 +88,7 @@ class AppControllerSpec extends PlaySpec with GuiceOneAppPerTest {
       )
 
       val request = FakeRequest(POST, "/books")
-        .withHeaders("X-Requested-With" -> "XMLHttpRequest")
+        .withHeaders("X-Requested-With" -> "XMLHttpRequest","Authorization" -> s"Bearer $token")
         .withBody(jsonBody)
 
       val result = route(app, request).get
@@ -79,7 +101,7 @@ class AppControllerSpec extends PlaySpec with GuiceOneAppPerTest {
   "GET /books" should {
     "retrieve a list of books" in {
       val request = FakeRequest(GET, "/books")
-        .withHeaders("X-Requested-With" -> "XMLHttpRequest")
+        .withHeaders("X-Requested-With" -> "XMLHttpRequest","Authorization" -> s"Bearer $token")
 
       val result = route(app, request).get
       status(result) mustBe OK
@@ -97,11 +119,11 @@ class AppControllerSpec extends PlaySpec with GuiceOneAppPerTest {
       )
 
       val request = FakeRequest(PATCH, "/books")
-        .withHeaders("X-Requested-With" -> "XMLHttpRequest")
+        .withHeaders("X-Requested-With" -> "XMLHttpRequest","Authorization" -> s"Bearer $token")
         .withBody(jsonBody)
 
       val result = route(app, request).get
-      status(result) mustBe CREATED
+      status(result) mustBe OK
     }
   }
 
@@ -118,7 +140,7 @@ class AppControllerSpec extends PlaySpec with GuiceOneAppPerTest {
       )
 
       val request = FakeRequest(POST, "/checkouts")
-        .withHeaders("X-Requested-With" -> "XMLHttpRequest")
+        .withHeaders("X-Requested-With" -> "XMLHttpRequest","Authorization" -> s"Bearer $token")
         .withBody(jsonBody)
 
       val result = route(app, request).get
@@ -139,7 +161,7 @@ class AppControllerSpec extends PlaySpec with GuiceOneAppPerTest {
       )
 
       val request = FakeRequest(POST, "/checkouts")
-        .withHeaders("X-Requested-With" -> "XMLHttpRequest")
+        .withHeaders("X-Requested-With" -> "XMLHttpRequest","Authorization" -> s"Bearer $token")
         .withBody(jsonBody)
 
       val result = route(app, request).get
@@ -160,7 +182,7 @@ class AppControllerSpec extends PlaySpec with GuiceOneAppPerTest {
       )
 
       val request = FakeRequest(POST, "/checkouts")
-        .withHeaders("X-Requested-With" -> "XMLHttpRequest")
+        .withHeaders("X-Requested-With" -> "XMLHttpRequest","Authorization" -> s"Bearer $token")
         .withBody(jsonBody)
 
       val result = route(app, request).get
@@ -172,7 +194,7 @@ class AppControllerSpec extends PlaySpec with GuiceOneAppPerTest {
   "GET /checkouts" should {
     "retrieve a list of checkouts" in {
       val request = FakeRequest(GET, "/checkouts?status=ALL")
-        .withHeaders("X-Requested-With" -> "XMLHttpRequest")
+        .withHeaders("X-Requested-With" -> "XMLHttpRequest","Authorization" -> s"Bearer $token")
 
       val result = route(app, request).get
       status(result) mustBe OK
@@ -184,7 +206,7 @@ class AppControllerSpec extends PlaySpec with GuiceOneAppPerTest {
   "POST /checkouts/1/return" should {
     "return a checked out book" in {
       val request = FakeRequest(POST, "/checkouts/1/return")
-        .withHeaders("X-Requested-With" -> "XMLHttpRequest")
+        .withHeaders("X-Requested-With" -> "XMLHttpRequest","Authorization" -> s"Bearer $token")
 
       val result = route(app, request).get
       status(result) mustBe OK
@@ -195,7 +217,7 @@ class AppControllerSpec extends PlaySpec with GuiceOneAppPerTest {
   "POST /checkouts/2/return" should {
     "fail to return a book that is already returned" in {
       val request = FakeRequest(POST, "/checkouts/1/return")
-        .withHeaders("X-Requested-With" -> "XMLHttpRequest")
+        .withHeaders("X-Requested-With" -> "XMLHttpRequest","Authorization" -> s"Bearer $token")
 
       val result = route(app, request).get
       status(result) mustBe BAD_REQUEST
@@ -206,7 +228,7 @@ class AppControllerSpec extends PlaySpec with GuiceOneAppPerTest {
   "POST /checkouts/74/return" should {
     "fail to return a checkout that does not exist" in {
       val request = FakeRequest(POST, "/checkouts/74/return")
-        .withHeaders("X-Requested-With" -> "XMLHttpRequest")
+        .withHeaders("X-Requested-With" -> "XMLHttpRequest","Authorization" -> s"Bearer $token")
 
       val result = route(app, request).get
       status(result) mustBe BAD_REQUEST
@@ -217,7 +239,7 @@ class AppControllerSpec extends PlaySpec with GuiceOneAppPerTest {
   "GET /notifications" should {
     "retrieve user notifications" in {
       val request = FakeRequest(GET, "/notifications")
-        .withHeaders("X-Requested-With" -> "XMLHttpRequest")
+        .withHeaders("X-Requested-With" -> "XMLHttpRequest","Authorization" -> s"Bearer $token")
 
       val result = route(app, request).get
       status(result) mustBe OK
@@ -229,7 +251,7 @@ class AppControllerSpec extends PlaySpec with GuiceOneAppPerTest {
   "GET /borrowedBooks/1" should {
     "retrieve borrowed books for a user" in {
       val request = FakeRequest(GET, "/borrowedBooks/1")
-        .withHeaders("X-Requested-With" -> "XMLHttpRequest")
+        .withHeaders("X-Requested-With" -> "XMLHttpRequest","Authorization" -> s"Bearer $token")
 
       val result = route(app, request).get
       status(result) mustBe OK
@@ -240,7 +262,7 @@ class AppControllerSpec extends PlaySpec with GuiceOneAppPerTest {
   "DELETE /users/1" should {
     "delete a user" in {
       val request = FakeRequest(DELETE, "/users/1")
-        .withHeaders("X-Requested-With" -> "XMLHttpRequest")
+        .withHeaders("X-Requested-With" -> "XMLHttpRequest","Authorization" -> s"Bearer $token")
 
       val result = route(app, request).get
       status(result) mustBe OK
@@ -251,7 +273,7 @@ class AppControllerSpec extends PlaySpec with GuiceOneAppPerTest {
   "DELETE /books/1" should {
     "delete a book" in {
       val request = FakeRequest(DELETE, "/books/1")
-        .withHeaders("X-Requested-With" -> "XMLHttpRequest")
+        .withHeaders("X-Requested-With" -> "XMLHttpRequest","Authorization" -> s"Bearer $token")
 
       val result = route(app, request).get
       status(result) mustBe OK

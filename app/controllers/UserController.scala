@@ -29,8 +29,9 @@ class UserController @Inject()(
         errors =>
           Future.successful(BadRequest(Json.obj("error" -> "Invalid JSON"))),
         user => {
-          userService.createUser(user).map { _ =>
-            Created(Json.obj("status" -> "User created"))
+          userService.createUser(user).map {
+            case -1 => Conflict(Json.obj("status" -> "User already Exists"))
+            case _ => Created(Json.obj("status" -> "User created"))
           }
         }
       )
@@ -45,10 +46,11 @@ class UserController @Inject()(
           errors =>
             Future.successful(BadRequest(Json.obj("status" -> "Invalid JSON"))),
           updatedUser => {
+            print(updatedUser)
             userService.updateUser(updatedUser).map {
               case Left(msg) => Ok(Json.obj("status" -> msg))
               case Right(user) =>
-                Created(
+                Ok(
                   Json.obj("Status" -> "User Updated", "Updated User" -> user)
                 )
             }
@@ -84,7 +86,7 @@ class UserController @Inject()(
 
   // DELETE /users/:userId
   def deleteUser(userId: Long): Action[AnyContent] = jwtAction.async { request =>
-    if (hasRole(List(1))(request)) {
+    if (hasRole(List(3))(request)) {
       userService.deleteUser(userId).map {
         case 0 => Ok(Json.toJson("Status" -> "User Not Found"))
         case _ => Ok(Json.toJson("Status" -> "User Deleted"))
@@ -137,8 +139,8 @@ class UserController @Inject()(
     request.body.validate[LogoutRequest].fold(
       _ => Future.successful(BadRequest(Json.obj("error" -> "Invalid logout request"))),
       logoutReq => {
-        tokenService.revokeToken(logoutReq.refreshToken).map { _ =>
-          Ok(Json.obj("message" -> "Logged out successfully"))
+        tokenService.revokeToken(logoutReq.refreshToken).map {
+          _ => Ok(Json.obj("message" -> "Logged out successfully"))
         }
       }
     )

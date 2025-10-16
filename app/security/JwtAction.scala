@@ -1,7 +1,10 @@
 package security
 
+import play.api.libs.json.Json
+
 import javax.inject.Inject
 import play.api.mvc._
+
 import scala.concurrent.{ExecutionContext, Future}
 
 case class JwtRequest[A](claims: Map[String, String], role: String, request: Request[A]) extends WrappedRequest[A](request)
@@ -24,10 +27,10 @@ class JwtAction @Inject()(parser: BodyParsers.Default)(implicit ec: ExecutionCon
             val role = claims.getOrElse("role", "User") // Default to "User" for now
             block(JwtRequest(claims, role, request))
           case None =>
-            Future.successful(Results.Unauthorized("Invalid or expired token"))
+            Future.successful(Results.Unauthorized(Json.obj("status" -> "Invalid or expired token")))
         }
       case _ =>
-        Future.successful(Results.Unauthorized("Authorization header missing or malformed"))
+        Future.successful(Results.Unauthorized(Json.obj("status"->"Authorization header missing or malformed")))
     }
   }
 }

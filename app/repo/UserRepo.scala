@@ -17,7 +17,7 @@ class UserRepo @Inject() (
   var checkout = TableQuery[models.CheckoutModel]
 
   def createUser(user: User): Future[Int] = {
-    db.run(users.map(_.insertProjection) += user) // Creates a new user
+    db.run(users.map(_.insertProjection()) += user) // Creates a new user
   }
 
   def listUsers(): Future[Seq[User]] = {
@@ -26,6 +26,10 @@ class UserRepo @Inject() (
 
   def findById(userId: Long): Future[Option[User]] = {
     db.run(users.filter(_.id === userId).result.headOption) // Finds user by ID
+  }
+
+  def findByEmail(email: String): Future[Option[User]] = {
+    db.run(users.filter(_.email === email).result.headOption) // Finds user by email
   }
 
   def updateUser(updatedUser: UserPatch): Future[Either[String, User]] = {
@@ -46,6 +50,7 @@ class UserRepo @Inject() (
                 ) // If both the previous and changed values are same it returns no changes
               else Right(user) // Returns the updated user
             }
+            case None => Left("User not found")
           }
         }
       }

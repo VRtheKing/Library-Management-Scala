@@ -52,7 +52,7 @@ class CheckoutController @Inject()(
 
   // PATCH /checkout
   def updateCheckout(): Action[JsValue] = jwtAction.async(parse.json) { request =>
-    if (hasRole(List(1,2))(request)) {
+    if (hasRole(List(2,3))(request)) {
       request.body
         .validate[CheckoutPatch]
         .fold(
@@ -61,7 +61,7 @@ class CheckoutController @Inject()(
             checkoutService.updateCheckout(checkout).map {
               case Left(msg) => Ok(Json.obj("status" -> msg))
               case Right(checkout) =>
-                Created(
+                Ok(
                   Json.obj("status" -> "Checkout Updated", "checkout" -> checkout)
                 )
             }
@@ -87,7 +87,7 @@ class CheckoutController @Inject()(
 
   // DELETE /checkout/:checkoutId
   def deleteCheckout(checkoutId: Long): Action[AnyContent] = jwtAction.async { request =>
-    if (hasRole(List(1))(request)) {
+    if (hasRole(List(3))(request)) {
       checkoutService.deleteCheckout(checkoutId).map {
         case 0 => Ok(Json.toJson("status" -> "Checkout not found"))
         case _ => Ok(Json.toJson("status" -> "Checkout deleted"))

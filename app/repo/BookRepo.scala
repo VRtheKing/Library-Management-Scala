@@ -93,7 +93,9 @@ class BookRepo @Inject() (
             .filter(_.id === bookId)
             .map(_.stock)
             .update(stock - 1) // Decrease the stock by 1 on checkout
-        case None =>
+          case None=>
+            DBIO.successful(0)
+        case Some(_) =>
           DBIO.successful(0)
       }
     db.run(query)

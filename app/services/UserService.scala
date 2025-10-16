@@ -15,7 +15,12 @@ class UserService @Inject() (tokenService: TokenService, userRepo: UserRepo)(imp
     ec: ExecutionContext
 ) {
   def createUser(user: User): Future[Int] = {
-    userRepo.createUser(user.copy(passwordHash = user.passwordHash.boundedBcrypt)) // Creates a user
+    userRepo.findByEmail(user.email).flatMap {
+      case Some(_) =>
+        Future.successful(-1) // user already exists
+      case None =>
+        userRepo.createUser(user.copy(passwordHash = user.passwordHash.boundedBcrypt))
+    }
   }
 
   def listUser(): Future[Seq[User]] = {

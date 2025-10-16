@@ -4,6 +4,7 @@ import com.typesafe.config.ConfigFactory
 import pdi.jwt.{Jwt, JwtAlgorithm, JwtClaim}
 import io.circe.parser._
 import io.circe.syntax._
+import models.Role
 
 import java.time.Instant
 import scala.util._
@@ -13,7 +14,7 @@ object JwtUtil {
   private val config = ConfigFactory.load()
   private val secret: String = config.getString("jwt.secret")
   val SecretKey = secret
-  val Ttl = 180 // seconds
+  val Ttl = 3600 // seconds
 
   def createToken(secretKey: String, data: Map[String, String]): String = {
     val claimsJson = data.asJson.noSpaces
@@ -37,7 +38,13 @@ object JwtUtil {
   }
 
   def hasRole[A](requiredRoles: List[Int])(request: JwtRequest[A]): Boolean = {
-//    println(request.toString())
-    requiredRoles.contains(request.role)
+    val roleId = Role.fromName(request.role).map {
+      case Role.Admin     => 3
+      case Role.Librarian => 2
+      case Role.User      => 1
+      case _           => -1
+    }
+//    print(roleIdOpt)
+    roleId.exists(requiredRoles.contains)
   }
 }

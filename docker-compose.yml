@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   db:
     image: postgres:latest
@@ -17,15 +15,39 @@ services:
     networks:
       - library-net
 
-  app:
+  app1:
     build: .
-    container_name: library-app
+    container_name: library-app1
     restart: on-failure
     depends_on:
       - db
     ports:
-      - "9000:9000"
+      - "9001:9000"
       - "50051:50051"
+    networks:
+      - library-net
+
+  app2:
+    build: .
+    container_name: library-app2
+    restart: on-failure
+    depends_on:
+      - db
+    ports:
+      - "9002:9000"
+      - "50052:50051"
+    networks:
+      - library-net
+
+  app3:
+    build: .
+    container_name: library-app3
+    restart: on-failure
+    depends_on:
+      - db
+    ports:
+      - "9003:9000"
+      - "50053:50051"
     networks:
       - library-net
 

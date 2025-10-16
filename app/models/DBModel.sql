@@ -1,10 +1,11 @@
-# --- !Ups
+-- --- !Ups
 
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
-    role TEXT NOT NULL,
+    role_id INTEGER NOT NULL,
+    "passwordHash" TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -12,7 +13,7 @@ CREATE TABLE books (
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
     author TEXT NOT NULL,
-    isbn TEXT NOT NULL,
+    isbn TEXT UNIQUE NOT NULL,
     stock INTEGER NOT NULL,
     fine INTEGER NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -26,7 +27,8 @@ CREATE TABLE checkouts (
     due_date DATE NOT NULL,
     return_date DATE,
     fine NUMERIC,
-    returned BOOLEAN NOT NULL DEFAULT FALSE
+    returned BOOLEAN NOT NULL DEFAULT FALSE,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE notifications (
@@ -35,9 +37,25 @@ CREATE TABLE notifications (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-# --- !Downs
+CREATE TABLE roles (
+    id SERIAL PRIMARY KEY,
+    name TEXT
+);
 
-DROP TABLE IF EXISTS notifications;
-DROP TABLE IF EXISTS checkouts;
-DROP TABLE IF EXISTS books;
-DROP TABLE IF EXISTS users;
+CREATE TABLE refresh_tokens (
+    id SERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token TEXT,
+    issued_at TIMESTAMP NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    revoked BOOLEAN
+);
+
+-- --- !Downs
+
+--DROP TABLE IF EXISTS refresh_tokens CASCADE;
+--DROP TABLE IF EXISTS checkouts CASCADE;
+--DROP TABLE IF EXISTS notifications CASCADE;
+--DROP TABLE IF EXISTS books CASCADE;
+--DROP TABLE IF EXISTS users CASCADE;
+--DROP TABLE IF EXISTS roles CASCADE;
